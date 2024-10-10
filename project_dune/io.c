@@ -8,13 +8,26 @@ void gotoxy(POSITION pos) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 }
 
-void set_color(int color) {
+void set_color(int color) { // 글자 색상 함수
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
+void set_bgColor(int text, int back) { // 배경색 포함 색상
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), text | (back<<4));
 }
 
 void printc(POSITION pos, char ch, int color) {
 	if (color >= 0) {
 		set_color(color);
+	}
+	gotoxy(pos);
+	printf("%c", ch);
+}
+
+// 배경색 변경
+void printBgc(POSITION pos, char ch, int color, int back) {
+	if (color >= 0) {
+		set_bgColor(color, back);
 	}
 	gotoxy(pos);
 	printf("%c", ch);
