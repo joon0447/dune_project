@@ -74,6 +74,8 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 1 && j < 3) { // 플레이어 본진
 					if (i == MAP_HEIGHT-3 && j == 1) printBgc(padd(map_pos, pos), 'B', COLOR_WHITE, COLOR_BLUE);
 					else printBgc(padd(map_pos, pos), backbuf[i][j] , COLOR_BLUE, COLOR_BLUE);
+					//if (i == MAP_HEIGHT - 3 && j == 1) map[0][i][j] = 'B'; // 'B'는 본진을 의미
+					//else map[0][i][j] = backbuf[i][j];
 				}
 				else if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 본진 우측 장판
 					if (i == MAP_HEIGHT - 3 && j == 3) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);

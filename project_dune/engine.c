@@ -9,6 +9,7 @@ void init(void);
 void intro(void);
 void outro(void);
 void cursor_move(DIRECTION dir);
+void cursor_double_move(DIRECTION dir);
 void sample_obj_move(void);
 POSITION sample_obj_next_position(void);
 
@@ -44,13 +45,31 @@ int main(void) {
 	intro();
 	display(resource, map, cursor);
 
+	KEY last_key = k_none; // 더블입력 확인을 위한 마지막 입력 키 저장 변수
+	int count = 0; //짧은 시간 더블입력 인식을 위한 카운트 변수
+
 	while (1) {
 		// loop 돌 때마다(즉, TICK==10ms마다) 키 입력 확인
 		KEY key = get_key();
 
+		//300ms 후 마지막 입력 키 초기화
+		count++;
+		if (count == 15) { 
+			count = 0;
+			last_key = k_none;
+		}
+
 		// 키 입력이 있으면 처리
 		if (is_arrow_key(key)) {
-			cursor_move(ktod(key));
+			if (last_key == key) { // 키 더블입력
+				cursor_double_move(ktod(key));
+				last_key = k_none;
+			}
+			else { // 키 한번 입력
+				cursor_move(ktod(key));
+				last_key = key;
+			}
+	
 		}
 		else {
 			// 방향키 외의 입력
@@ -116,6 +135,32 @@ void cursor_move(DIRECTION dir) {
 	POSITION new_pos = pmove(curr, dir);
 
 	// validation check
+	if (1 <= new_pos.row && new_pos.row <= MAP_HEIGHT - 2 && \
+		1 <= new_pos.column && new_pos.column <= MAP_WIDTH - 2) {
+
+		cursor.previous = cursor.current;
+		cursor.current = new_pos;
+	}
+}
+
+// 더블입력 커서 이동
+void cursor_double_move(DIRECTION dir) {
+	POSITION curr = cursor.current;
+	POSITION new_pos = curr;  // 현재 위치를 먼저 복사
+
+	// 3칸 이동을 위해 3번 이동 방향에 따라 새 위치를 계산
+	for (int i = 0; i < 3; i++) {
+		new_pos = pmove(new_pos, dir);  // 한 칸씩 이동
+
+		// 중간 단계에서도 매번 validation check
+		if (new_pos.row < 1 || new_pos.row > MAP_HEIGHT - 2 || \
+			new_pos.column < 1 || new_pos.column > MAP_WIDTH - 2) {
+			// 만약 이동 불가한 범위가 나오면 중단
+			break;
+		}
+	}
+
+	// 최종 위치가 유효한지 확인 후 커서 위치 갱신
 	if (1 <= new_pos.row && new_pos.row <= MAP_HEIGHT - 2 && \
 		1 <= new_pos.column && new_pos.column <= MAP_WIDTH - 2) {
 
