@@ -10,6 +10,10 @@
 
 #include "common.h"
 
+
+extern char backbuf[MAP_HEIGHT][MAP_WIDTH];
+
+
 // 표시할 색상 정의. 대충 맞춰 뒀는데, 취향껏 추가하거나 변경하기
 #define COLOR_DEFAULT	7
 #define COLOR_CURSOR	112
@@ -29,5 +33,8 @@ void display(
 	char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH],
 	CURSOR cursor
 );
+
+void object_info(char text[]);
+
 
 #endif

@@ -20,6 +20,9 @@ void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP
 void display_resource(RESOURCE resource);
 void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]);
 void display_cursor(CURSOR cursor);
+void display_object_info();
+void display_system_message();
+void display_commands();
 
 
 void display(
@@ -30,10 +33,9 @@ void display(
 	display_resource(resource);
 	display_map(map);
 	display_cursor(cursor);
-	// display_system_message()
-	// display_object_info()
-	// display_commands()
-	// ...
+	display_object_info();
+	display_system_message();
+	display_commands();
 }
 
 void display_resource(RESOURCE resource) {
@@ -74,55 +76,67 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 1 && j < 3) { // 플레이어 본진
 					if (i == MAP_HEIGHT-3 && j == 1) printBgc(padd(map_pos, pos), 'B', COLOR_WHITE, COLOR_BLUE);
 					else printBgc(padd(map_pos, pos), backbuf[i][j] , COLOR_BLUE, COLOR_BLUE);
-					//if (i == MAP_HEIGHT - 3 && j == 1) map[0][i][j] = 'B'; // 'B'는 본진을 의미
-					//else map[0][i][j] = backbuf[i][j];
+					//if (i == MAP_HEIGHT - 3 && j == 1) map[1][i][j] = 'B'; // 'B'는 본진을 의미
+					backbuf[i][j] = 'B';
 				}
 				else if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 본진 우측 장판
 					if (i == MAP_HEIGHT - 3 && j == 3) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
 					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
+					backbuf[i][j] = 'P';
 				}
 				else if (i == MAP_HEIGHT - 4 && j ==  1) { // 플레이어 본진 위 하베스터
 					printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_BLUE);
+					backbuf[i][j] = 'H';
 				}
 				else if (i == MAP_HEIGHT - 6 && j == 1) { // 플레이어 본진 쪽 스파이스
 					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
 				}
 				else if (i == MAP_HEIGHT - 16 && j == 4) { // 플레이어 본진 쪽 샌드웜
 					printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
+					backbuf[i][j] = 'W';
 				}
 				else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 3 && j < MAP_WIDTH - 1) { // AI 본진
 					if(i==MAP_HEIGHT - 17 && j == MAP_WIDTH - 3) printBgc(padd(map_pos, pos), 'B', COLOR_DEFAULT, COLOR_RED);
 					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_RED, COLOR_RED);
+					backbuf[i][j] = 'B';
 				}
 				else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) { // AI 본진 좌측 장판
 					if(i== MAP_HEIGHT - 17 && j == MAP_WIDTH -5) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
 					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
+					backbuf[i][j] = 'P';
 				}
 				else if (i == MAP_HEIGHT - 15 &&  j == MAP_WIDTH-2) { // AI 본진 하베스터
 					printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_RED);
+					backbuf[i][j] = 'H';
 				}
 				else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 본진 스파이스
 					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
 				}
 				else if (i == MAP_HEIGHT - 4 && j == MAP_WIDTH - 7) { // AI 본진 샌드웜
 					printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
+					backbuf[i][j] = 'W';
 				}
 				else if (i == MAP_HEIGHT - 8 && j == MAP_WIDTH - 10) { // 바위
 					printBgc(padd(map_pos, pos), 'R', COLOR_WHITE, COLOR_GRAY);
+					backbuf[i][j] = 'R';
 				}
 				else if (i == MAP_HEIGHT - 10 && j == MAP_WIDTH - 42) { // 바위
 					printBgc(padd(map_pos, pos), 'R', COLOR_WHITE, COLOR_GRAY);
+					backbuf[i][j] = 'R';
 				}
 				else if (i == MAP_HEIGHT - 5 && j == MAP_WIDTH - 25) { // 바위
 					printBgc(padd(map_pos, pos), 'R', COLOR_WHITE, COLOR_GRAY);
+					backbuf[i][j] = 'R';
 				}
 				else if (i >= MAP_HEIGHT - 12 && i< MAP_HEIGHT- 10 && j >= MAP_WIDTH - 35 && j < MAP_WIDTH - 33) { // 바위
 					if(i==MAP_HEIGHT - 12 && j == MAP_WIDTH - 35) printBgc(padd(map_pos, pos), 'R', COLOR_WHITE, COLOR_GRAY);
 					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_GRAY, COLOR_GRAY);
+					backbuf[i][j] = 'R';
 				}
 				else if (i >= MAP_HEIGHT - 5 && i < MAP_HEIGHT - 3 && j >= MAP_WIDTH - 12 && j < MAP_WIDTH - 10) { // 바위
 					if(i==MAP_HEIGHT -5 && j == MAP_WIDTH -12) printBgc(padd(map_pos, pos), 'R', COLOR_WHITE, COLOR_GRAY);
 					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_GRAY, COLOR_GRAY);
+					backbuf[i][j] = 'R';
 				}
 				else {
 					printc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT);
@@ -134,14 +148,78 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 	}
 }
 
+
+void display_object_info() {
+	int info_width = 50;   // 상태창의 너비
+	POSITION info_pos = { 1, MAP_WIDTH + 2 }; // 상태창의 시작 위치 (1, MAP_WIDTH + 2)
+
+	printf("\033[?25l"); // 테두리 커서 숨기기
+	
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		printc(padd(info_pos, (POSITION) { i, 0 }), '|', COLOR_WHITE); // 왼쪽 테두리
+		printc(padd(info_pos, (POSITION) { i, info_width - 1 }), '|', COLOR_WHITE); // 오른쪽 테두리
+	}
+	for (int j = 0; j < info_width; j++) {
+		printc(padd(info_pos, (POSITION) { 0, j }), '-', COLOR_WHITE); // 상단 테두리
+		printc(padd(info_pos, (POSITION) { MAP_HEIGHT - 1, j }), '-', COLOR_WHITE); // 하단 테두리
+	}
+}
+
+
+
+
+
 // frontbuf[][]에서 커서 위치의 문자를 색만 바꿔서 그대로 다시 출력
 void display_cursor(CURSOR cursor) {
 	POSITION prev = cursor.previous;
 	POSITION curr = cursor.current;
 
-	char ch = frontbuf[prev.row][prev.column];
-	printc(padd(map_pos, prev), ch, COLOR_DEFAULT);
+	
+	
+	char ch_prev = backbuf[prev.row][prev.column];
+	printc(padd(map_pos, prev), ch_prev, COLOR_DEFAULT);
 
-	ch = frontbuf[curr.row][curr.column];
-	printc(padd(map_pos, curr), ch, COLOR_CURSOR);
+	char ch_curr = frontbuf[curr.row][curr.column];
+	printc(padd(map_pos, curr), ch_curr, COLOR_CURSOR);
+
+}
+
+void display_system_message() {
+	int height = 10;
+	POSITION pos = { MAP_HEIGHT + 2, 1 };
+	printf("\033[?25l"); // 테두리 커서 숨기기
+	for (int i = 0; i < height; i++) {
+		printc(padd(pos, (POSITION) { i, 0 }), '|', COLOR_WHITE); // 왼쪽 테두리
+		printc(padd(pos, (POSITION) { i, MAP_WIDTH - 2 }), '|', COLOR_WHITE); // 오른쪽 테두리
+	}
+
+	for (int i = 0; i < MAP_WIDTH-1; i++) {
+		printc(padd(pos, (POSITION) { 0, i }), '-', COLOR_WHITE); // 상단 테두리
+		printc(padd(pos, (POSITION) { height - 1, i }), '-', COLOR_WHITE); // 하단 테두리
+	}
+}
+
+void display_commands() {
+	int info_width = 50;   // 상태창의 너비
+	int height = 10;
+	POSITION info_pos = { MAP_HEIGHT+2, MAP_WIDTH + 2 }; // 상태창의 시작 위치 (1, MAP_WIDTH + 2)
+	printf("\033[?25l"); // 테두리 커서 숨기기
+	for (int i = 0; i < height; i++) {
+		printc(padd(info_pos, (POSITION) { i, 0 }), '|', COLOR_WHITE); // 왼쪽 테두리
+		printc(padd(info_pos, (POSITION) { i, info_width - 1 }), '|', COLOR_WHITE); // 오른쪽 테두리
+	}
+	for (int j = 0; j < info_width; j++) {
+		printc(padd(info_pos, (POSITION) { 0, j }), '-', COLOR_WHITE); // 상단 테두리
+		printc(padd(info_pos, (POSITION) { height - 1, j }), '-', COLOR_WHITE); // 하단 테두리
+	}
+}
+
+void object_info(char text[]) {
+	POSITION info_pos = { 1, MAP_WIDTH + 2 };
+	for (int i = 0; i < 10; i++) {
+		printc(padd(info_pos, (POSITION) { 1, i }), ' ', COLOR_WHITE);
+	}
+	
+	
+	print_info(padd(info_pos, (POSITION) { 1, 1 }), text, COLOR_WHITE);
 }

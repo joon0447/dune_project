@@ -5,9 +5,12 @@
 #include "io.h"
 #include "display.h"
 
+
+
 void init(void);
 void intro(void);
 void outro(void);
+void object_select(void);
 void cursor_move(DIRECTION dir);
 void cursor_double_move(DIRECTION dir);
 void sample_obj_move(void);
@@ -75,6 +78,12 @@ int main(void) {
 			// 방향키 외의 입력
 			switch (key) {
 			case k_quit: outro();
+			case k_space: 
+				object_select(); // 선택 함수
+				break;
+			case k_esc:
+				object_info(" ");
+				break;
 			case k_none:
 			case k_undef:
 			default: break;
@@ -101,6 +110,37 @@ void intro(void) {
 void outro(void) {
 	printf("exiting...\n");
 	exit(0);
+}
+
+//오브젝트 선택 함수
+void object_select(void){
+	POSITION curr = cursor.current;
+	char ch = backbuf[curr.row][curr.column];
+	if (ch == 'B') {  // 본진
+		object_info("본진");
+	}
+	else if (ch == 'P') { // 장판
+		object_info("장판");
+	}
+	else if (ch == 'S') { // 스파이스
+		object_info("스파이스");
+	}
+	
+	else if (ch == 'H') { // 하베스터
+		object_info("하베스터");
+	}
+
+	else if (ch == 'W') { // 샌드웜
+		object_info("샌드웜");
+	}
+
+	else if (ch == 'R') { // 바위
+		object_info("바위");
+	}
+
+	else {
+		object_info("사막 지형");
+	}
 }
 
 void init(void) {
