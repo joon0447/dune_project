@@ -60,6 +60,7 @@ void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP
 	}
 }
 
+
 void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 	project(map, backbuf);
 	
@@ -91,10 +92,13 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				else if (i == MAP_HEIGHT - 6 && j == 1) { // 플레이어 본진 쪽 스파이스
 					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
 				}
+				/*
 				else if (i == MAP_HEIGHT - 16 && j == 4) { // 플레이어 본진 쪽 샌드웜
 					printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
 					backbuf[i][j] = 'W';
 				}
+				*/
+				
 				else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 3 && j < MAP_WIDTH - 1) { // AI 본진
 					if(i==MAP_HEIGHT - 17 && j == MAP_WIDTH - 3) printBgc(padd(map_pos, pos), 'B', COLOR_DEFAULT, COLOR_RED);
 					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_RED, COLOR_RED);
@@ -112,10 +116,14 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 본진 스파이스
 					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
 				}
+
+				/*
 				else if (i == MAP_HEIGHT - 4 && j == MAP_WIDTH - 7) { // AI 본진 샌드웜
 					printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
 					backbuf[i][j] = 'W';
 				}
+				*/
+				
 				else if (i == MAP_HEIGHT - 8 && j == MAP_WIDTH - 10) { // 바위
 					printBgc(padd(map_pos, pos), 'R', COLOR_WHITE, COLOR_GRAY);
 					backbuf[i][j] = 'R';

@@ -13,7 +13,7 @@ void outro(void);
 void object_select(void);
 void cursor_move(DIRECTION dir);
 void cursor_double_move(DIRECTION dir);
-void sample_obj_move(void);
+void worm_obj_move(void);
 POSITION sample_obj_next_position(void);
 
 
@@ -32,10 +32,10 @@ RESOURCE resource = {
 	.population_max = 0
 };
 
-OBJECT_SAMPLE obj = {
+SANDWORM obj = {
 	.pos = {1, 1},
 	.dest = {MAP_HEIGHT - 2, MAP_WIDTH - 2},
-	.repr = 'o',
+	.repr = 'W',
 	.speed = 300,
 	.next_move_time = 300
 };
@@ -90,8 +90,8 @@ int main(void) {
 			}
 		}
 
-		// 샘플 오브젝트 동작
-		sample_obj_move();
+		// 샌드웜 움직임
+		worm_obj_move();
 
 		// 화면 출력
 		display(resource, map, cursor);
@@ -253,6 +253,8 @@ POSITION sample_obj_next_position(void) {
 	}
 }
 
+
+/*
 void sample_obj_move(void) {
 	if (sys_clock <= obj.next_move_time) {
 		// 아직 시간이 안 됐음
@@ -264,4 +266,22 @@ void sample_obj_move(void) {
 	obj.pos = sample_obj_next_position();
 	map[1][obj.pos.row][obj.pos.column] = obj.repr;
 	obj.next_move_time = sys_clock + obj.speed;
+}
+*/
+
+
+void worm_obj_move(void) {
+	if (sys_clock <= obj.next_move_time) {
+		// 아직 시간이 안 됐음
+		return;
+	}
+	map[1][obj.pos.row][obj.pos.column] = -1;
+
+	POSITION pos = { obj.pos.row + 1 , obj.pos.column };
+	printBgc(pos, ' ' , COLOR_BLACK, COLOR_BLACK);
+	obj.pos = sample_obj_next_position();
+	obj.next_move_time = sys_clock + obj.speed;
+
+	POSITION newPos = { obj.pos.row+1 , obj.pos.column};
+	printBgc(newPos, obj.repr, COLOR_BLACK, COLOR_YELLOW);
 }

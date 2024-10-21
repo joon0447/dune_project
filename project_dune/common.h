@@ -86,7 +86,6 @@ typedef struct {
 } RESOURCE;
 
 
-// 대강 만들어 봤음. 기능 추가하면서 각자 수정할 것
 typedef struct {
 	POSITION pos;		// 현재 위치(position)
 	POSITION dest;		// 목적지(destination)
@@ -94,6 +93,6 @@ typedef struct {
 	int move_period;	// '몇 ms마다 한 칸 움직이는지'를 뜻함
 	int next_move_time;	// 다음에 움직일 시간
 	int speed;
-} OBJECT_SAMPLE;
+} SANDWORM;
 
 #endif
