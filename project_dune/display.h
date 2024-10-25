@@ -35,6 +35,6 @@ void display(
 );
 
 void object_info(char text[]);
-
+void object_cmd(char text[]);
 
 #endif

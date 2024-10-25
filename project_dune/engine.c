@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
+#include <math.h>
 #include "common.h"
 #include "io.h"
 #include "display.h"
+
 
 
 
@@ -13,7 +15,7 @@ void outro(void);
 void object_select(void);
 void cursor_move(DIRECTION dir);
 void cursor_double_move(DIRECTION dir);
-void worm_obj_move(void);
+void sample_obj_move(void);
 POSITION sample_obj_next_position(void);
 
 
@@ -35,10 +37,20 @@ RESOURCE resource = {
 SANDWORM obj = {
 	.pos = {1, 1},
 	.dest = {MAP_HEIGHT - 2, MAP_WIDTH - 2},
+	.repr = 'o',
+	.speed = 300,
+	.next_move_time = 300
+};
+
+SANDWORM obj2 = {
+	.pos = {10, 15},
+	.dest = {MAP_HEIGHT - 2, MAP_WIDTH - 2},
 	.repr = 'W',
 	.speed = 300,
 	.next_move_time = 300
 };
+
+
 
 /* ================= main() =================== */
 int main(void) {
@@ -50,6 +62,7 @@ int main(void) {
 
 	KEY last_key = k_none; // 더블입력 확인을 위한 마지막 입력 키 저장 변수
 	int count = 0; //짧은 시간 더블입력 인식을 위한 카운트 변수
+
 
 	while (1) {
 		// loop 돌 때마다(즉, TICK==10ms마다) 키 입력 확인
@@ -83,6 +96,7 @@ int main(void) {
 				break;
 			case k_esc:
 				object_info(" ");
+				object_cmd(" ");
 				break;
 			case k_none:
 			case k_undef:
@@ -90,8 +104,8 @@ int main(void) {
 			}
 		}
 
-		// 샌드웜 움직임
-		worm_obj_move();
+
+		sample_obj_move();
 
 		// 화면 출력
 		display(resource, map, cursor);
@@ -117,7 +131,13 @@ void object_select(void){
 	POSITION curr = cursor.current;
 	char ch = backbuf[curr.row][curr.column];
 	if (ch == 'B') {  // 본진
-		object_info("본진");
+		if (curr.column < 5) {
+			object_info("본진");
+			object_cmd("H : 하베스터 생산");
+		}
+		else {
+			object_info("본진");
+		}
 	}
 	else if (ch == 'P') { // 장판
 		object_info("장판");
@@ -209,6 +229,23 @@ void cursor_double_move(DIRECTION dir) {
 	}
 }
 
+
+void sample_obj_move(void) {
+	if (sys_clock <= obj.next_move_time) {
+		// 아직 시간이 안 됐음
+		return;
+	}
+
+	// 오브젝트(건물, 유닛 등)은 layer1(map[1])에 저장
+	map[1][obj.pos.row][obj.pos.column] = -1;
+	obj.pos = sample_obj_next_position();
+	map[1][obj.pos.row][obj.pos.column] = obj.repr;
+
+	obj.next_move_time = sys_clock + obj.speed;
+}
+
+
+
 /* ================= sample object movement =================== */
 POSITION sample_obj_next_position(void) {
 	// 현재 위치와 목적지를 비교해서 이동 방향 결정	
@@ -251,37 +288,4 @@ POSITION sample_obj_next_position(void) {
 	else {
 		return obj.pos;  // 제자리
 	}
-}
-
-
-/*
-void sample_obj_move(void) {
-	if (sys_clock <= obj.next_move_time) {
-		// 아직 시간이 안 됐음
-		return;
-	}
-
-	// 오브젝트(건물, 유닛 등)은 layer1(map[1])에 저장
-	map[1][obj.pos.row][obj.pos.column] = -1;
-	obj.pos = sample_obj_next_position();
-	map[1][obj.pos.row][obj.pos.column] = obj.repr;
-	obj.next_move_time = sys_clock + obj.speed;
-}
-*/
-
-
-void worm_obj_move(void) {
-	if (sys_clock <= obj.next_move_time) {
-		// 아직 시간이 안 됐음
-		return;
-	}
-	map[1][obj.pos.row][obj.pos.column] = -1;
-
-	POSITION pos = { obj.pos.row + 1 , obj.pos.column };
-	printBgc(pos, ' ' , COLOR_BLACK, COLOR_BLACK);
-	obj.pos = sample_obj_next_position();
-	obj.next_move_time = sys_clock + obj.speed;
-
-	POSITION newPos = { obj.pos.row+1 , obj.pos.column};
-	printBgc(newPos, obj.repr, COLOR_BLACK, COLOR_YELLOW);
 }

@@ -64,10 +64,7 @@ void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP
 void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 	project(map, backbuf);
 	
-	// 스파이스 매장량 설정을 위한 난수 생성 ( 1 ~ 9 범위)
-	srand((unsigned int)time(NULL));
-	int rand_num = (rand() % 9) + 1;
-	char spice = '0' + rand_num;
+	char spice = '0' + 5;
 
 
 	for (int i = 0; i < MAP_HEIGHT; i++) {
@@ -224,10 +221,17 @@ void display_commands() {
 
 void object_info(char text[]) {
 	POSITION info_pos = { 1, MAP_WIDTH + 2 };
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 30; i++) {
 		printc(padd(info_pos, (POSITION) { 1, i }), ' ', COLOR_WHITE);
 	}
-	
-	
+
+	print_info(padd(info_pos, (POSITION) { 1, 1 }), text, COLOR_WHITE);
+}
+
+void object_cmd(char text[]) {
+	POSITION info_pos = { 20, MAP_WIDTH + 2 };
+	for (int i = 0; i < 30; i++) {
+		printc(padd(info_pos, (POSITION) { 1, i }), ' ', COLOR_WHITE);
+	}
 	print_info(padd(info_pos, (POSITION) { 1, 1 }), text, COLOR_WHITE);
 }
