@@ -141,25 +141,31 @@ void object_select(void){
 	}
 	else if (ch == 'P') { // 장판
 		object_info("장판");
+		object_cmd("");
 	}
 	else if (ch == 'S') { // 스파이스
 		object_info("스파이스");
+		object_cmd("");
 	}
 	
 	else if (ch == 'H') { // 하베스터
 		object_info("하베스터");
+		object_cmd("");
 	}
 
 	else if (ch == 'W') { // 샌드웜
 		object_info("샌드웜");
+		object_cmd("");
 	}
 
 	else if (ch == 'R') { // 바위
 		object_info("바위");
+		object_cmd("");
 	}
 
 	else {
 		object_info("사막 지형");
+		object_cmd("");
 	}
 }
 
