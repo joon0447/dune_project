@@ -15,8 +15,10 @@ void outro(void);
 void object_select(void);
 void cursor_move(DIRECTION dir);
 void cursor_double_move(DIRECTION dir);
-void sample_obj_move(void);
-POSITION sample_obj_next_position(void);
+void obj1_move(void);
+void obj2_move(void);
+POSITION obj1_next_position(void);
+POSITION obj2_next_position(void);
 
 
 /* ================= control =================== */
@@ -36,15 +38,15 @@ RESOURCE resource = {
 
 SANDWORM obj = {
 	.pos = {1, 1},
-	.dest = {MAP_HEIGHT - 2, MAP_WIDTH - 2},
-	.repr = 'o',
+	.dest = {MAP_HEIGHT -4 , 1}, // 플레이어 본진 하베스터
+	.repr = 'W',
 	.speed = 300,
 	.next_move_time = 300
 };
 
 SANDWORM obj2 = {
-	.pos = {10, 15},
-	.dest = {MAP_HEIGHT - 2, MAP_WIDTH - 2},
+	.pos = {10, 30},
+	.dest = {MAP_HEIGHT - 15, MAP_WIDTH - 2}, // AI 본진 하베스터 
 	.repr = 'W',
 	.speed = 300,
 	.next_move_time = 300
@@ -105,7 +107,8 @@ int main(void) {
 		}
 
 
-		sample_obj_move();
+		obj1_move();
+		obj2_move();
 
 		// 화면 출력
 		display(resource, map, cursor);
@@ -236,7 +239,7 @@ void cursor_double_move(DIRECTION dir) {
 }
 
 
-void sample_obj_move(void) {
+void obj1_move(void) {
 	if (sys_clock <= obj.next_move_time) {
 		// 아직 시간이 안 됐음
 		return;
@@ -244,16 +247,27 @@ void sample_obj_move(void) {
 
 	// 오브젝트(건물, 유닛 등)은 layer1(map[1])에 저장
 	map[1][obj.pos.row][obj.pos.column] = -1;
-	obj.pos = sample_obj_next_position();
+	obj.pos = obj1_next_position();
 	map[1][obj.pos.row][obj.pos.column] = obj.repr;
 
 	obj.next_move_time = sys_clock + obj.speed;
 }
 
 
+void obj2_move(void) {
+	if (sys_clock <= obj2.next_move_time) {
+		return;
+	}
 
-/* ================= sample object movement =================== */
-POSITION sample_obj_next_position(void) {
+	map[1][obj2.pos.row][obj2.pos.column] = -1;
+	obj2.pos = obj2_next_position();
+	map[1][obj2.pos.row][obj2.pos.column] = obj2.repr;
+
+	obj2.next_move_time = sys_clock + obj2.speed;
+}
+
+
+POSITION obj1_next_position(void) {
 	// 현재 위치와 목적지를 비교해서 이동 방향 결정	
 	POSITION diff = psub(obj.dest, obj.pos);
 	DIRECTION dir;
@@ -293,5 +307,48 @@ POSITION sample_obj_next_position(void) {
 	}
 	else {
 		return obj.pos;  // 제자리
+	}
+}
+
+POSITION obj2_next_position(void) {
+	// 현재 위치와 목적지를 비교해서 이동 방향 결정	
+	POSITION diff = psub(obj2.dest, obj2.pos);
+	DIRECTION dir;
+
+	// 목적지 도착. 지금은 단순히 원래 자리로 왕복
+	if (diff.row == 0 && diff.column == 0) {
+		if (obj2.dest.row == 1 && obj2.dest.column == 1) {
+			// topleft --> bottomright로 목적지 설정
+			POSITION new_dest = { MAP_HEIGHT - 2, MAP_WIDTH - 2 };
+			obj2.dest = new_dest;
+		}
+		else {
+			// bottomright --> topleft로 목적지 설정
+			POSITION new_dest = { 1, 1 };
+			obj2.dest = new_dest;
+		}
+		return obj2.pos;
+	}
+
+	// 가로축, 세로축 거리를 비교해서 더 먼 쪽 축으로 이동
+	if (abs(diff.row) >= abs(diff.column)) {
+		dir = (diff.row >= 0) ? d_down : d_up;
+	}
+	else {
+		dir = (diff.column >= 0) ? d_right : d_left;
+	}
+
+	// validation check
+	// next_pos가 맵을 벗어나지 않고, (지금은 없지만)장애물에 부딪히지 않으면 다음 위치로 이동
+	// 지금은 충돌 시 아무것도 안 하는데, 나중에는 장애물을 피해가거나 적과 전투를 하거나... 등등
+	POSITION next_pos = pmove(obj2.pos, dir);
+	if (1 <= next_pos.row && next_pos.row <= MAP_HEIGHT - 2 && \
+		1 <= next_pos.column && next_pos.column <= MAP_WIDTH - 2 && \
+		map[1][next_pos.row][next_pos.column] < 0) {
+
+		return next_pos;
+	}
+	else {
+		return obj2.pos;  // 제자리
 	}
 }
