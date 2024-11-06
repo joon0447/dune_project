@@ -66,6 +66,22 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 	
 	char spice = '0' + 5;
 
+	int num = rand() % 8 + 1;
+	char rand_spice = '0' + num;
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			POSITION pos = { i,j };
+			// 샌드웜
+			if (map[1][i][j] == 'W') {
+				printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
+			}
+
+			// 샌드웜 배설 스파이스 
+			else if (map[0][i][j] == 's') { 
+				printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
+			}
+		}
+	}
 
 	for (int i = 0; i < MAP_HEIGHT; i++) {
 		for (int j = 0; j < MAP_WIDTH; j++) {
@@ -88,6 +104,7 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				}
 				else if (i == MAP_HEIGHT - 6 && j == 1) { // 플레이어 본진 쪽 스파이스
 					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
+					backbuf[i][j] = 'S';
 				}
 				/*
 				else if (i == MAP_HEIGHT - 16 && j == 4) { // 플레이어 본진 쪽 샌드웜
@@ -112,6 +129,7 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				}
 				else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 본진 스파이스
 					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
+					backbuf[i][j] = 'S';
 				}
 
 				/*
@@ -228,7 +246,7 @@ void object_info(char text[]) {
 	print_info(padd(info_pos, (POSITION) { 1, 1 }), text, COLOR_WHITE);
 }
 
-void object_cmd(char text[]) {
+void object_cmd	(char text[]) {
 	POSITION info_pos = { 20, MAP_WIDTH + 2 };
 	for (int i = 0; i < 30; i++) {
 		printc(padd(info_pos, (POSITION) { 1, i }), ' ', COLOR_WHITE);

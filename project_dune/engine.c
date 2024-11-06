@@ -20,6 +20,8 @@ void obj2_move(void);
 POSITION obj1_next_position(void);
 POSITION obj2_next_position(void);
 
+POSITION pos = { 1,0 };
+
 
 /* ================= control =================== */
 int sys_clock = 0;		// system-wide clock(ms)
@@ -195,7 +197,7 @@ void init(void) {
 	}
 
 	// object sample
-	map[1][obj.pos.row][obj.pos.column] = 'o';
+	//map[1][obj.pos.row][obj.pos.column] = ';
 }
 
 // (가능하다면) 지정한 방향으로 커서 이동
@@ -245,11 +247,14 @@ void obj1_move(void) {
 		return;
 	}
 
+	int percent = rand() % 100;
 	// 오브젝트(건물, 유닛 등)은 layer1(map[1])에 저장
 	map[1][obj.pos.row][obj.pos.column] = -1;
+	if (percent < 10) {
+		map[0][obj.pos.row][obj.pos.column] = 's';
+	}
 	obj.pos = obj1_next_position();
 	map[1][obj.pos.row][obj.pos.column] = obj.repr;
-
 	obj.next_move_time = sys_clock + obj.speed;
 }
 
@@ -259,8 +264,16 @@ void obj2_move(void) {
 		return;
 	}
 
+	int percent = rand() % 100;
+
+
+	
 	map[1][obj2.pos.row][obj2.pos.column] = -1;
+	if (percent < 10) {
+		map[0][obj2.pos.row][obj2.pos.column] = 's';
+	}
 	obj2.pos = obj2_next_position();
+
 	map[1][obj2.pos.row][obj2.pos.column] = obj2.repr;
 
 	obj2.next_move_time = sys_clock + obj2.speed;
@@ -271,6 +284,7 @@ POSITION obj1_next_position(void) {
 	// 현재 위치와 목적지를 비교해서 이동 방향 결정	
 	POSITION diff = psub(obj.dest, obj.pos);
 	DIRECTION dir;
+	
 
 	// 목적지 도착. 지금은 단순히 원래 자리로 왕복
 	if (diff.row == 0 && diff.column == 0) {
@@ -295,6 +309,7 @@ POSITION obj1_next_position(void) {
 		dir = (diff.column >= 0) ? d_right : d_left;
 	}
 
+		
 	// validation check
 	// next_pos가 맵을 벗어나지 않고, (지금은 없지만)장애물에 부딪히지 않으면 다음 위치로 이동
 	// 지금은 충돌 시 아무것도 안 하는데, 나중에는 장애물을 피해가거나 적과 전투를 하거나... 등등
