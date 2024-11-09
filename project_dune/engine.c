@@ -17,6 +17,8 @@ void cursor_move(DIRECTION dir);
 void cursor_double_move(DIRECTION dir);
 void obj1_move(void);
 void obj2_move(void);
+void create_harvester(void);
+void calc_count(void);
 POSITION obj1_next_position(void);
 POSITION obj2_next_position(void);
 
@@ -54,7 +56,9 @@ SANDWORM obj2 = {
 	.next_move_time = 300
 };
 
-
+int current_select = -1;
+bool make_harve = false;
+int count_harve = 0;
 
 /* ================= main() =================== */
 int main(void) {
@@ -101,6 +105,12 @@ int main(void) {
 			case k_esc:
 				object_info(" ");
 				object_cmd(" ");
+				current_select = -1;
+				break;
+			case k_h:
+				if (current_select == 0) {
+					create_harvester();
+				}
 				break;
 			case k_none:
 			case k_undef:
@@ -131,6 +141,20 @@ void outro(void) {
 	exit(0);
 }
 
+void calc_count() {
+	if (make_harve) {
+		count_harve++;
+		if (count_harve >= 5) {
+			print_system_message("하베스터가 생산되었습니다.");
+		}
+		else {
+			print_system_message("하베스터가 생산되었습니다.");
+			make_harve = false;
+			count_harve = 0;
+		}
+	}
+}
+
 //오브젝트 선택 함수
 void object_select(void){
 	POSITION curr = cursor.current;
@@ -139,6 +163,7 @@ void object_select(void){
 		if (curr.column < 5) {
 			object_info("본진");
 			object_cmd("H : 하베스터 생산");
+			current_select = 0;
 		}
 		else {
 			object_info("본진");
@@ -147,10 +172,12 @@ void object_select(void){
 	else if (ch == 'P') { // 장판
 		object_info("장판");
 		object_cmd("");
+		current_select = 1;
 	}
 	else if (ch == 'S') { // 스파이스
 		object_info("스파이스");
 		object_cmd("");
+		current_select = 2;
 	}
 	
 	else if (ch == 'H') { // 하베스터
@@ -366,4 +393,14 @@ POSITION obj2_next_position(void) {
 	else {
 		return obj2.pos;  // 제자리
 	}
+}
+
+void create_harvester() {
+	if (resource.spice >= 5) {
+		print_system_message("하베스터가 생산 되었습니다.");
+	}
+	else {
+		print_system_message("하베스터 생산에 필요한 스파이스가 부족합니다.");
+	}
+	
 }

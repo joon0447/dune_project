@@ -5,8 +5,10 @@
 * io.c에 있는 함수들을 사용함
 */
 
+#define _CRT_SECURE_NO_WARNINGS
 #include "display.h"
 #include "io.h"
+
 
 // 출력할 내용들의 좌상단(topleft) 좌표
 const POSITION resource_pos = { 0, 0 };
@@ -15,6 +17,8 @@ const POSITION map_pos = { 1, 0 };
 
 char backbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
 char frontbuf[MAP_HEIGHT][MAP_WIDTH] = { 0 };
+
+char system_message[8][100] = { "" };
 
 void project(char src[N_LAYER][MAP_HEIGHT][MAP_WIDTH], char dest[MAP_HEIGHT][MAP_WIDTH]);
 void display_resource(RESOURCE resource);
@@ -172,6 +176,7 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 }
 
 
+// 상태창
 void display_object_info() {
 	int info_width = 50;   // 상태창의 너비
 	POSITION info_pos = { 1, MAP_WIDTH + 2 }; // 상태창의 시작 위치 (1, MAP_WIDTH + 2)
@@ -207,6 +212,7 @@ void display_cursor(CURSOR cursor) {
 
 }
 
+// 시스템 메시지 창
 void display_system_message() {
 	int height = 10;
 	POSITION pos = { MAP_HEIGHT + 2, 1 };
@@ -222,6 +228,23 @@ void display_system_message() {
 	}
 }
 
+void print_system_message(char text[]) {
+	char tmp[] = { system_message[0] };
+	
+	for (int i = 7; i > 0; i--) {
+		strcpy(system_message[i], system_message[i-1]);
+	}
+
+	strcpy(system_message[0], text);
+	
+	// 최대 8줄
+	POSITION pos = { MAP_HEIGHT + 3, 1 };
+	for (int i = 8; i > 0; i--) {
+		print_info(padd(pos, (POSITION) { i, 1 }), system_message[8-i], COLOR_WHITE);
+	}
+}
+
+// 명령창
 void display_commands() {
 	int info_width = 50;   // 상태창의 너비
 	int height = 10;
