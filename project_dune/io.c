@@ -24,6 +24,15 @@ void printc(POSITION pos, char ch, int color) {
 	printf("%c", ch);
 }
 
+void print_info(POSITION pos, char ch[], int color) {
+	if (color >= 0) {
+		set_color(color);
+	}
+	gotoxy(pos);
+	printf("%s", ch);
+}
+
+
 // 배경색 변경
 void printBgc(POSITION pos, char ch, int color, int back) {
 	if (color >= 0) {
@@ -41,6 +50,17 @@ KEY get_key(void) {
 	int byte = _getch();    // 입력된 키를 전달 받기
 	switch (byte) {
 	case 'q': return k_quit;  // 'q'를 누르면 종료
+	case 32: //스페이스바
+		return k_space;
+	case 27: //ESC
+		return k_esc;
+	case 72:
+	case 104:
+		return k_h;
+	case 88:
+	case 120:
+		return k_x;
+
 	case 224:
 		byte = _getch();  // MSB 224가 입력 되면 1바이트 더 전달 받기
 		switch (byte) {
