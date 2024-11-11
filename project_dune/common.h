@@ -38,6 +38,8 @@ typedef enum {
 	k_space,
 	k_h,
 	k_esc,
+	k_h,
+	k_x,
 	k_undef, // 정의되지 않은 키 입력	
 } KEY;
 

@@ -18,12 +18,12 @@ void cursor_double_move(DIRECTION dir);
 void obj1_move(void);
 void obj2_move(void);
 void create_harvester(void);
+void calc_count(void);
 POSITION obj1_next_position(void);
 POSITION obj2_next_position(void);
 
 POSITION pos = { 1,0 };
 
-int current_select = -1;
 
 /* ================= control =================== */
 int sys_clock = 0;		// system-wide clock(ms)
@@ -56,7 +56,9 @@ SANDWORM obj2 = {
 	.next_move_time = 300
 };
 
-
+int current_select = -1;
+bool make_harve = false;
+int count_harve = 0;
 
 /* ================= main() =================== */
 int main(void) {
@@ -139,6 +141,20 @@ void outro(void) {
 	exit(0);
 }
 
+void calc_count() {
+	if (make_harve) {
+		count_harve++;
+		if (count_harve >= 5) {
+			print_system_message("하베스터가 생산되었습니다.");
+		}
+		else {
+			print_system_message("하베스터가 생산되었습니다.");
+			make_harve = false;
+			count_harve = 0;
+		}
+	}
+}
+
 //오브젝트 선택 함수
 void object_select(void){
 	POSITION curr = cursor.current;
@@ -200,43 +216,6 @@ void init(void) {
 		}
 	}
 
-
-	for (int i = 0; i < MAP_HEIGHT; i++) {
-		for (int j = 0; j < MAP_WIDTH; j++) {
-			if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 1 && j < 3) { // 플레이어 본진
-				map[0][i][j] = 'B';
-			}
-
-			else if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 본진 우측 장판
-				map[0][i][j] = 'P';
-			}
-			else if (i == MAP_HEIGHT - 4 && j == 1) { // 플레이어 본진 하베스터
-				map[0][i][j] = 'H';
-			}
-			
-			else if (i == MAP_HEIGHT - 6 && j == 1) { // 플레이어 본진 쪽 스파이스
-				map[0][i][j] = 'S';
-			}
-
-			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 3 && j < MAP_WIDTH - 1) {
-				map[0][i][j] = 'B';
-			}
-			
-			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) {
-				map[0][i][j] = 'P';
-			}
-
-			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) { // AI 본진 하베스터
-				map[0][i][j] = 'H';
-			}
-			else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 본진 스파이스
-				map[0][i][j] = 'S';
-			}
-	
-		}
-
-	}
-
 	// layer 1(map[1])은 비워 두기(-1로 채움)
 	for (int i = 0; i < MAP_HEIGHT; i++) {
 		for (int j = 0; j < MAP_WIDTH; j++) {
@@ -260,8 +239,6 @@ void cursor_move(DIRECTION dir) {
 		cursor.previous = cursor.current;
 		cursor.current = new_pos;
 	}
-	
-
 }
 
 // 더블입력 커서 이동
@@ -296,20 +273,13 @@ void obj1_move(void) {
 		// 아직 시간이 안 됐음
 		return;
 	}
-	
-	// 샌드웜 일반 유닛 잡아 먹기 기능
-	if (backbuf[obj.pos.row][obj.pos.column] == 'H') {
-		backbuf[obj.pos.row][obj.pos.column] == ' ';
-	}
 
-	
 	int percent = rand() % 100;
 	// 오브젝트(건물, 유닛 등)은 layer1(map[1])에 저장
 	map[1][obj.pos.row][obj.pos.column] = -1;
 	if (percent < 10) {
 		map[0][obj.pos.row][obj.pos.column] = 's';
 	}
-
 	obj.pos = obj1_next_position();
 	map[1][obj.pos.row][obj.pos.column] = obj.repr;
 	obj.next_move_time = sys_clock + obj.speed;
@@ -432,5 +402,5 @@ void create_harvester() {
 	else {
 		print_system_message("하베스터 생산에 필요한 스파이스가 부족합니다.");
 	}
-
+	
 }

@@ -36,5 +36,6 @@ void display(
 
 void object_info(char text[]);
 void object_cmd(char text[]);
+void print_system_message(char text[]);
 
 #endif
