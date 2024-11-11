@@ -54,6 +54,9 @@ KEY get_key(void) {
 		return k_space;
 	case 27: //ESC
 		return k_esc;
+	case 72:
+	case 104:
+		return k_h;
 	case 224:
 		byte = _getch();  // MSB 224가 입력 되면 1바이트 더 전달 받기
 		switch (byte) {
