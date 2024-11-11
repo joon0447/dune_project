@@ -215,6 +215,35 @@ void init(void) {
 			map[0][i][j] = ' ';
 		}
 	}
+	
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for(int j=0; j<MAP_WIDTH; j++){
+			if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 1 && j < 3) { // 플레이어 본진
+				map[0][i][j] = 'B';
+			}
+			else if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 본진 우측 장판
+				map[0][i][j] = 'P';
+			}
+			else if (i == MAP_HEIGHT - 4 && j == 1) { // 플레이어 본진 하베스터
+				map[0][i][j] = 'H';
+			}
+			else if (i == MAP_HEIGHT - 6 && j == 1) { // 플레이어 본진 스파이스
+				map[0][i][j] = 'S';
+			}
+			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 3 && j < MAP_WIDTH - 1) { // AI 본진
+				map[0][i][j] = 'B';
+			}
+			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) {
+				map[0][i][j] = 'P';
+			}
+			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) {
+				map[0][i][j] = 'H';
+			}
+			else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) {
+				map[0][i][j] = 'S';
+			}
+		}
+	}
 
 	// layer 1(map[1])은 비워 두기(-1로 채움)
 	for (int i = 0; i < MAP_HEIGHT; i++) {
@@ -223,8 +252,7 @@ void init(void) {
 		}
 	}
 
-	// object sample
-	//map[1][obj.pos.row][obj.pos.column] = ';
+	
 }
 
 // (가능하다면) 지정한 방향으로 커서 이동

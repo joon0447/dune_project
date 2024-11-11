@@ -75,13 +75,45 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 	for (int i = 0; i < MAP_HEIGHT; i++) {
 		for (int j = 0; j < MAP_WIDTH; j++) {
 			POSITION pos = { i,j };
+			char layer_1 = map[1][i][j];
 			// 샌드웜
-			if (map[1][i][j] == 'W') {
+			if (layer_1 == 'W') {
 				printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
 			}
 
+			
+
+			char back = backbuf[i][j];
 			// 샌드웜 배설 스파이스 
-			else if (map[0][i][j] == 's') { 
+			if (back == 's') {
+				printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
+			}
+			else if (back == 'B') {
+				if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 1 && j < 3) { // 플레이어 본진
+					if (i == MAP_HEIGHT - 3 && j == 1) printBgc(padd(map_pos, pos), 'B', COLOR_WHITE, COLOR_BLUE);
+					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_BLUE, COLOR_BLUE);
+				}
+				if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 3 && j < MAP_WIDTH - 1) { // AI 본진
+					if (i == MAP_HEIGHT - 17 && j == MAP_WIDTH - 3) printBgc(padd(map_pos, pos), 'B', COLOR_DEFAULT, COLOR_RED);
+					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_RED, COLOR_RED);
+				}
+			}
+			else if (back == 'P') {
+				if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 장판
+					if (i == MAP_HEIGHT - 3 && j == 3) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
+					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
+				}
+				
+				if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) { // AI 본진 좌측 장판
+					if (i == MAP_HEIGHT - 17 && j == MAP_WIDTH - 5) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
+					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
+
+				}
+			}
+			else if (back == 'H') {
+				printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_BLUE);
+			}
+			else if (back == 'S') {
 				printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
 			}
 		}
@@ -91,59 +123,8 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 		for (int j = 0; j < MAP_WIDTH; j++) {
 			if (frontbuf[i][j] != backbuf[i][j]) {
 				POSITION pos = { i, j };
-				if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 1 && j < 3) { // 플레이어 본진
-					if (i == MAP_HEIGHT-3 && j == 1) printBgc(padd(map_pos, pos), 'B', COLOR_WHITE, COLOR_BLUE);
-					else printBgc(padd(map_pos, pos), backbuf[i][j] , COLOR_BLUE, COLOR_BLUE);
-					//if (i == MAP_HEIGHT - 3 && j == 1) map[1][i][j] = 'B'; // 'B'는 본진을 의미
-					backbuf[i][j] = 'B';
-				}
-				else if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 본진 우측 장판
-					if (i == MAP_HEIGHT - 3 && j == 3) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
-					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
-					backbuf[i][j] = 'P';
-				}
-				else if (i == MAP_HEIGHT - 4 && j ==  1) { // 플레이어 본진 위 하베스터
-					printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_BLUE);
-					backbuf[i][j] = 'H';
-				}
-				else if (i == MAP_HEIGHT - 6 && j == 1) { // 플레이어 본진 쪽 스파이스
-					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
-					backbuf[i][j] = 'S';
-				}
-				/*
-				else if (i == MAP_HEIGHT - 16 && j == 4) { // 플레이어 본진 쪽 샌드웜
-					printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
-					backbuf[i][j] = 'W';
-				}
-				*/
-				
-				else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 3 && j < MAP_WIDTH - 1) { // AI 본진
-					if(i==MAP_HEIGHT - 17 && j == MAP_WIDTH - 3) printBgc(padd(map_pos, pos), 'B', COLOR_DEFAULT, COLOR_RED);
-					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_RED, COLOR_RED);
-					backbuf[i][j] = 'B';
-				}
-				else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) { // AI 본진 좌측 장판
-					if(i== MAP_HEIGHT - 17 && j == MAP_WIDTH -5) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
-					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
-					backbuf[i][j] = 'P';
-				}
-				else if (i == MAP_HEIGHT - 15 &&  j == MAP_WIDTH-2) { // AI 본진 하베스터
-					printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_RED);
-					backbuf[i][j] = 'H';
-				}
-				else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 본진 스파이스
-					printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
-					backbuf[i][j] = 'S';
-				}
 
-				/*
-				else if (i == MAP_HEIGHT - 4 && j == MAP_WIDTH - 7) { // AI 본진 샌드웜
-					printBgc(padd(map_pos, pos), 'W', COLOR_BLACK, COLOR_YELLOW);
-					backbuf[i][j] = 'W';
-				}
-				*/
-				
-				else if (i == MAP_HEIGHT - 8 && j == MAP_WIDTH - 10) { // 바위
+				if (i == MAP_HEIGHT - 8 && j == MAP_WIDTH - 10) { // 바위
 					printBgc(padd(map_pos, pos), 'R', COLOR_WHITE, COLOR_GRAY);
 					backbuf[i][j] = 'R';
 				}
