@@ -1,3 +1,2 @@
-﻿  display.c
-C:\Users\joon0\Desktop\goP\dune\dune_project\project_dune\display.c(213,7): warning C4047: '초기화 중': 'char'의 간접 참조 수준이 'char *'과(와) 다릅니다.
-  project_dune.vcxproj -> C:\Users\joon0\Desktop\goP\dune\dune_project\Debug\project_dune.exe
+﻿  engine.c
+  project_dune.vcxproj -> D:\github\dune_project\Debug\project_dune.exe

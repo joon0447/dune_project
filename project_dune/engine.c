@@ -1,3 +1,14 @@
+
+/*
+20200908 조상준
+
+1) 준비 ~ 5) 시스템 메시지 까지 완료
+
+3) 중립 유닛의 보너스 1,2는 하지 않음
+4) 유닛1개 생산 의 보너스는 하지 않음
+
+*/
+
 #include <stdlib.h>
 #include <time.h>
 #include <assert.h>
@@ -17,8 +28,14 @@ void cursor_move(DIRECTION dir);
 void cursor_double_move(DIRECTION dir);
 void obj1_move(void);
 void obj2_move(void);
+void obj1_eat(void);
+void obj2_eat(void);
+bool obj1_dest(void);
+bool obj2_dest(void);
+
 void create_harvester(void);
 void calc_count(void);
+
 POSITION obj1_next_position(void);
 POSITION obj2_next_position(void);
 
@@ -131,7 +148,7 @@ int main(void) {
 
 /* ================= subfunctions =================== */
 void intro(void) {
-	printf("DUNE 1.5\n");
+	printf("=== DUNE 1.5 ===\n");
 	Sleep(2000);
 	system("cls");
 }
@@ -233,13 +250,13 @@ void init(void) {
 			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 3 && j < MAP_WIDTH - 1) { // AI 본진
 				map[0][i][j] = 'B';
 			}
-			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) {
+			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) { // AI 장판
 				map[0][i][j] = 'P';
 			}
-			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) {
+			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) { // AI 하베스터
 				map[0][i][j] = 'H';
 			}
-			else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) {
+			else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 스파이스
 				map[0][i][j] = 'S';
 			}
 		}
@@ -301,57 +318,68 @@ void obj1_move(void) {
 		// 아직 시간이 안 됐음
 		return;
 	}
-
+	
+	obj1_eat();
+	
 	int percent = rand() % 100;
 	// 오브젝트(건물, 유닛 등)은 layer1(map[1])에 저장
-	map[1][obj.pos.row][obj.pos.column] = -1;
+	
 	if (percent < 10) {
-		map[0][obj.pos.row][obj.pos.column] = 's';
+		int num = rand() % 8 + 1;
+		char spice = '0' + num;
+		map[0][obj.pos.row][obj.pos.column] = spice;
 	}
 	obj.pos = obj1_next_position();
 	map[1][obj.pos.row][obj.pos.column] = obj.repr;
 	obj.next_move_time = sys_clock + obj.speed;
 }
 
-
-void obj2_move(void) {
-	if (sys_clock <= obj2.next_move_time) {
-		return;
+// 샌드웜1 일반유닛 잡아 먹기
+void obj1_eat(void) {
+	if (map[0][obj.pos.row][obj.pos.column] == 'H') { // 하베스터 잡아 먹기
+		map[0][obj.pos.row][obj.pos.column] = 'x';
+		map[1][obj.pos.row][obj.pos.column] = -1;
+		print_system_message("하베스터가 샌드웜에게 당했습니다.");
 	}
-
-	int percent = rand() % 100;
-
-
-	
-	map[1][obj2.pos.row][obj2.pos.column] = -1;
-	if (percent < 10) {
-		map[0][obj2.pos.row][obj2.pos.column] = 's';
+	else {
+		map[1][obj.pos.row][obj.pos.column] = -1;
 	}
-	obj2.pos = obj2_next_position();
-
-	map[1][obj2.pos.row][obj2.pos.column] = obj2.repr;
-
-	obj2.next_move_time = sys_clock + obj2.speed;
 }
 
+bool obj1_dest(void) {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			char unit = map[0][i][j];
+			// 하베스터일 경우
+			if (unit == 'H') {
+				POSITION dest = { i,j };
+				obj.dest = dest;
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 POSITION obj1_next_position(void) {
 	// 현재 위치와 목적지를 비교해서 이동 방향 결정	
 	POSITION diff = psub(obj.dest, obj.pos);
 	DIRECTION dir;
-	
+
 
 	// 목적지 도착. 지금은 단순히 원래 자리로 왕복
 	if (diff.row == 0 && diff.column == 0) {
-		if (obj.dest.row == 1 && obj.dest.column == 1) {
-			// topleft --> bottomright로 목적지 설정
-			POSITION new_dest = { MAP_HEIGHT - 2, MAP_WIDTH - 2 };
-			obj.dest = new_dest;
-		}
-		else {
-			// bottomright --> topleft로 목적지 설정
-			POSITION new_dest = { 1, 1 };
-			obj.dest = new_dest;
+		if (!obj1_dest()) {
+			if (obj.dest.row == 1 && obj.dest.column == 1) {
+				// topleft --> bottomright로 목적지 설정
+				POSITION new_dest = { MAP_HEIGHT - 2, MAP_WIDTH - 2 };
+				obj.dest = new_dest;
+			}
+			else {
+				// bottomright --> topleft로 목적지 설정
+				POSITION new_dest = { 1, 1 };
+				obj.dest = new_dest;
+			}
 		}
 		return obj.pos;
 	}
@@ -364,7 +392,7 @@ POSITION obj1_next_position(void) {
 		dir = (diff.column >= 0) ? d_right : d_left;
 	}
 
-		
+
 	// validation check
 	// next_pos가 맵을 벗어나지 않고, (지금은 없지만)장애물에 부딪히지 않으면 다음 위치로 이동
 	// 지금은 충돌 시 아무것도 안 하는데, 나중에는 장애물을 피해가거나 적과 전투를 하거나... 등등
@@ -380,6 +408,50 @@ POSITION obj1_next_position(void) {
 	}
 }
 
+void obj2_move(void) {
+	if (sys_clock <= obj2.next_move_time) {
+		return;
+	}
+	obj2_eat();
+	int percent = rand() % 100;
+	if (percent < 10) {
+		int num = rand() % 8 + 1;
+		char spice = '0' + num;
+		map[0][obj2.pos.row][obj2.pos.column] = spice;
+	}
+	obj2.pos = obj2_next_position();
+	map[1][obj2.pos.row][obj2.pos.column] = obj2.repr;
+	obj2.next_move_time = sys_clock + obj2.speed;
+}
+
+void obj2_eat(void) {
+	if (map[0][obj2.pos.row][obj2.pos.column] == 'H') { // 하베스터 잡아 먹기
+		map[0][obj2.pos.row][obj2.pos.column] = 'x';
+		map[1][obj2.pos.row][obj2.pos.column] = -1;
+		print_system_message("하베스터가 샌드웜에게 당했습니다.");
+	}
+	else {
+		map[1][obj2.pos.row][obj2.pos.column] = -1;
+	}
+}
+
+bool obj2_dest(void) {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			char unit = map[0][i][j];
+			// 하베스터일 경우
+			if (unit == 'H') {
+				POSITION dest = { i,j };
+				obj2.dest = dest;
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+
 POSITION obj2_next_position(void) {
 	// 현재 위치와 목적지를 비교해서 이동 방향 결정	
 	POSITION diff = psub(obj2.dest, obj2.pos);
@@ -387,15 +459,17 @@ POSITION obj2_next_position(void) {
 
 	// 목적지 도착. 지금은 단순히 원래 자리로 왕복
 	if (diff.row == 0 && diff.column == 0) {
-		if (obj2.dest.row == 1 && obj2.dest.column == 1) {
-			// topleft --> bottomright로 목적지 설정
-			POSITION new_dest = { MAP_HEIGHT - 2, MAP_WIDTH - 2 };
-			obj2.dest = new_dest;
-		}
-		else {
-			// bottomright --> topleft로 목적지 설정
-			POSITION new_dest = { 1, 1 };
-			obj2.dest = new_dest;
+		if (!obj2_dest()) {
+			if (obj2.dest.row == 1 && obj2.dest.column == 1) {
+				// topleft --> bottomright로 목적지 설정
+				POSITION new_dest = { MAP_HEIGHT - 2, MAP_WIDTH - 2 };
+				obj2.dest = new_dest;
+			}
+			else {
+				// bottomright --> topleft로 목적지 설정
+				POSITION new_dest = { 1, 1 };
+				obj2.dest = new_dest;
+			}
 		}
 		return obj2.pos;
 	}

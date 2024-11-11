@@ -85,8 +85,8 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 
 			char back = backbuf[i][j];
 			// 샌드웜 배설 스파이스 
-			if (back == 's') {
-				printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
+			if (back >= 49 && back <= 57) {
+				printBgc(padd(map_pos, pos), back, COLOR_WHITE, COLOR_ORANGE);
 			}
 			else if (back == 'B') {
 				if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 1 && j < 3) { // 플레이어 본진
@@ -115,6 +115,9 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			}
 			else if (back == 'S') {
 				printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
+			}
+			else if (back == 'x') {
+				printBgc(padd(map_pos, pos), ' ', COLOR_BLACK, COLOR_BLACK);
 			}
 		}
 	}
@@ -220,8 +223,8 @@ void print_system_message(char text[]) {
 	
 	// 최대 8줄
 	POSITION pos = { MAP_HEIGHT + 3, 1 };
-	for (int i = 8; i > 0; i--) {
-		print_info(padd(pos, (POSITION) { i, 1 }), system_message[8-i], COLOR_WHITE);
+	for (int i = 7; i > 0; i--) {
+		print_info(padd(pos, (POSITION) { i, 1 }), system_message[7-i], COLOR_WHITE);
 	}
 }
 
