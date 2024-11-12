@@ -113,6 +113,9 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			else if (back == 'H') {
 				printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_BLUE);
 			}
+			else if (back == 'h') {
+				printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_RED);
+			}
 			else if (back == 'S') {
 				printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
 			}
