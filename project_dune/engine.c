@@ -51,7 +51,7 @@ CURSOR cursor = { { 1, 1 }, {1, 1} };
 char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH] = { 0 };
 
 RESOURCE resource = {
-	.spice = 0,
+	.spice = 5,
 	.spice_max = 0,
 	.population = 0,
 	.population_max = 0
@@ -339,7 +339,7 @@ void obj1_eat(void) {
 	if (map[0][obj.pos.row][obj.pos.column] == 'H') { // 하베스터 잡아 먹기
 		map[0][obj.pos.row][obj.pos.column] = 'x';
 		map[1][obj.pos.row][obj.pos.column] = -1;
-		print_system_message("하베스터가 샌드웜에게 당했습니다.");
+		print_system_message("하베스터가 샌드웜에게 당했습니다.                ");
 	}
 	else {
 		map[1][obj.pos.row][obj.pos.column] = -1;
@@ -428,7 +428,7 @@ void obj2_eat(void) {
 	if (map[0][obj2.pos.row][obj2.pos.column] == 'H') { // 하베스터 잡아 먹기
 		map[0][obj2.pos.row][obj2.pos.column] = 'x';
 		map[1][obj2.pos.row][obj2.pos.column] = -1;
-		print_system_message("하베스터가 샌드웜에게 당했습니다.");
+		print_system_message("하베스터가 샌드웜에게 당했습니다.               ");
 	}
 	else {
 		map[1][obj2.pos.row][obj2.pos.column] = -1;
@@ -499,7 +499,15 @@ POSITION obj2_next_position(void) {
 
 void create_harvester() {
 	if (resource.spice >= 5) {
-		print_system_message("하베스터가 생산 되었습니다.");
+		//i == MAP_HEIGHT - 4 && j == 1
+		for (int i = 1; i < MAP_WIDTH; i++) {
+			if (backbuf[MAP_HEIGHT - 4][i] != 'H') {
+				map[0][MAP_HEIGHT - 4][i] = 'H';
+				break;
+			}
+		}
+		resource.spice -= 5;
+		print_system_message("하베스터가 생산 되었습니다.                   ");
 	}
 	else {
 		print_system_message("하베스터 생산에 필요한 스파이스가 부족합니다.");

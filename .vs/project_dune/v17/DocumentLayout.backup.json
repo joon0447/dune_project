@@ -33,7 +33,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 173,
+          "DockedWidth": 184,
           "SelectedChildIndex": 1,
           "Children": [
             {
@@ -46,8 +46,7 @@
               "RelativeToolTip": "project_dune\\common.h",
               "ViewState": "AgIAABgAAAAAAAAAAAAAACcAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-10-30T04:58:44.721Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-30T04:58:44.721Z"
             },
             {
               "$type": "Document",
@@ -57,7 +56,7 @@
               "RelativeDocumentMoniker": "project_dune\\display.c",
               "ToolTip": "C:\\Users\\joon0\\Desktop\\goP\\dune\\dune_project\\project_dune\\display.c",
               "RelativeToolTip": "project_dune\\display.c",
-              "ViewState": "AgIAAD8AAAAAAAAAAADgv1QAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAB4AAAAAAAAAAADgvyUAAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2024-10-30T04:58:44.764Z",
               "EditorCaption": ""
@@ -72,13 +71,12 @@
               "RelativeToolTip": "project_dune\\io.c",
               "ViewState": "AgIAACcAAAAAAAAAAAAAAEUAAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2024-10-30T04:58:44.869Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-10-30T04:58:44.869Z"
             }
           ]
         },
         {
-          "DockedWidth": 227,
+          "DockedWidth": 216,
           "SelectedChildIndex": 2,
           "Children": [
             {
@@ -115,7 +113,7 @@
               "RelativeDocumentMoniker": "project_dune\\engine.c",
               "ToolTip": "C:\\Users\\joon0\\Desktop\\goP\\dune\\dune_project\\project_dune\\engine.c",
               "RelativeToolTip": "project_dune\\engine.c",
-              "ViewState": "AgIAADMBAAAAAAAAAAAhwEsBAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAMYBAAAiAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
               "WhenOpened": "2024-10-30T04:58:44.889Z",
               "EditorCaption": ""
