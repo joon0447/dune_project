@@ -154,7 +154,10 @@ void intro(void) {
 }
 
 void outro(void) {
-	printf("exiting...\n");
+	for (int i = 0; i < 100; i++) {
+		printf(" \n");
+	}
+	printf("=== 게임 종료!! ==\n");
 	exit(0);
 }
 
@@ -199,7 +202,8 @@ void object_select(void){
 	
 	else if (ch == 'H') { // 하베스터
 		object_info("하베스터");
-		object_cmd("");
+		object_cmd("H: Harverst, M: Move");
+		current_select = 3;
 	}
 
 	else if (ch == 'W') { // 샌드웜
