@@ -206,6 +206,11 @@ void object_select(void){
 		current_select = 3;
 	}
 
+	else if (ch == 'h') {
+		object_info("하베스터");
+		object_cmd("");
+	}
+
 	else if (ch == 'W') { // 샌드웜
 		object_info("샌드웜");
 		object_cmd("");
@@ -258,7 +263,7 @@ void init(void) {
 				map[0][i][j] = 'P';
 			}
 			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) { // AI 하베스터
-				map[0][i][j] = 'H';
+				map[0][i][j] = 'h';
 			}
 			else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 스파이스
 				map[0][i][j] = 'S';
@@ -334,13 +339,17 @@ void obj1_move(void) {
 		map[0][obj.pos.row][obj.pos.column] = spice;
 	}
 	obj.pos = obj1_next_position();
+	if (map[0][obj.pos.row][obj.pos.column] == 'R') {
+		POSITION newPos = { obj.pos.row + 1, obj.pos.column };
+		obj.pos = newPos;
+	}
 	map[1][obj.pos.row][obj.pos.column] = obj.repr;
 	obj.next_move_time = sys_clock + obj.speed;
 }
 
 // 샌드웜1 일반유닛 잡아 먹기
 void obj1_eat(void) {
-	if (map[0][obj.pos.row][obj.pos.column] == 'H') { // 하베스터 잡아 먹기
+	if (map[0][obj.pos.row][obj.pos.column] == 'H' || map[0][obj.pos.row][obj.pos.column] == 'h') { // 하베스터 잡아 먹기
 		map[0][obj.pos.row][obj.pos.column] = 'x';
 		map[1][obj.pos.row][obj.pos.column] = -1;
 		print_system_message("하베스터가 샌드웜에게 당했습니다.                ");
@@ -355,7 +364,7 @@ bool obj1_dest(void) {
 		for (int j = 0; j < MAP_WIDTH; j++) {
 			char unit = map[0][i][j];
 			// 하베스터일 경우
-			if (unit == 'H') {
+			if (unit == 'H' || unit == 'h') {
 				POSITION dest = { i,j };
 				obj.dest = dest;
 				return true;
@@ -424,12 +433,17 @@ void obj2_move(void) {
 		map[0][obj2.pos.row][obj2.pos.column] = spice;
 	}
 	obj2.pos = obj2_next_position();
+
+	if (map[0][obj2.pos.row][obj2.pos.column] == 'R') {
+		POSITION newPos = { obj2.pos.row + 1, obj2.pos.column };
+		obj2.pos = newPos;
+	}
 	map[1][obj2.pos.row][obj2.pos.column] = obj2.repr;
 	obj2.next_move_time = sys_clock + obj2.speed;
 }
 
 void obj2_eat(void) {
-	if (map[0][obj2.pos.row][obj2.pos.column] == 'H') { // 하베스터 잡아 먹기
+	if (map[0][obj2.pos.row][obj2.pos.column] == 'H' || map[0][obj2.pos.row][obj2.pos.column] == 'h') { // 하베스터 잡아 먹기
 		map[0][obj2.pos.row][obj2.pos.column] = 'x';
 		map[1][obj2.pos.row][obj2.pos.column] = -1;
 		print_system_message("하베스터가 샌드웜에게 당했습니다.               ");
@@ -444,7 +458,7 @@ bool obj2_dest(void) {
 		for (int j = 0; j < MAP_WIDTH; j++) {
 			char unit = map[0][i][j];
 			// 하베스터일 경우
-			if (unit == 'H') {
+			if (unit == 'H' || unit == 'h') {
 				POSITION dest = { i,j };
 				obj2.dest = dest;
 				return true;
