@@ -24,6 +24,7 @@ void init(void);
 void intro(void);
 void outro(void);
 void object_select(void);
+void object_build(int build);
 void cursor_move(DIRECTION dir);
 void cursor_double_move(DIRECTION dir);
 void obj1_move(void);
@@ -117,22 +118,92 @@ int main(void) {
 			switch (key) {
 			case k_quit: outro();
 			case k_space: 
-				object_select(); // 선택 함수
+				if (current_select == -3) {
+					object_build(0); // 장판
+				}
+				else if (current_select == -4) {
+					// 숙소
+					object_build(1);
+				}
+				else if (current_select == -5) {
+					//창고
+					object_build(2);
+				}
+				else if (current_select == -6) {
+					//병영
+					object_build(3);
+				}
+				else if (current_select == -7) {
+					//은신처
+					object_build(4);
+				}
+				else {
+					object_select(); // 선택 함수
+				}
 				break;
 			case k_esc:
 				object_info(" ");
 				object_cmd(" ");
+				if (current_select == -2 || current_select != -3) {
+					print_system_message("건물 건설 모드를 종료합니다.");
+				}
 				current_select = -1;
+				big_cursor = false;
 				break;
 			case k_h:
 				if (current_select == 0) {
 					create_harvester();
+				}
+				big_cursor = false;
+				break;
+			case k_b:
+				if (current_select == -1) {
+					current_select = -2;
+					big_cursor = false;
+					object_cmd2("P: Plate", "D: Dormitory", "G: Garage", "B: Barracks", "S: Shelter", "ESC : Cancel");
+				}
+				else if (current_select == -2) {
+					big_cursor = true;
+					print_system_message("건설할 장판을 선택해주세요.");
+					current_select = -6;
+				}
+
+				break;
+			case k_p: //장판
+				if (current_select == -2) {
+					current_select = -3;
+					big_cursor = true;	
+				}
+				break;
+			case k_d: // 숙소
+				if (current_select == -2) {
+					big_cursor = true;
+					print_system_message("건설할 장판을 선택해주세요.");
+					current_select = -4;
+				}
+				break;
+			case k_g: // 창고
+				if (current_select == -2) {
+					big_cursor = true;
+					print_system_message("건설할 장판을 선택해주세요.");
+					current_select = -5;
+				}
+				break;
+			case k_s:
+				if (current_select == -2) {
+					big_cursor = true;
+					print_system_message("건설할 장판을 선택해주세요.");
+					current_select = -7;
 				}
 				break;
 			case k_none:
 			case k_undef:
 			default: break;
 			}
+		}
+
+		if (current_select == -1) {
+			object_cmd("B: Build");
 		}
 
 
@@ -175,55 +246,151 @@ void calc_count() {
 	}
 }
 
+void object_build(int build) {
+	POSITION x = { 1,0 };
+	POSITION y = { 0,1 };
+	POSITION xy = { 1,1 };
+
+	POSITION curr = cursor.current;
+	POSITION curr_a = padd(curr, x);
+	POSITION curr_b = padd(curr, y);
+	POSITION curr_c = padd(curr, xy);
+	char ch = backbuf[curr.row][curr.column];
+
+		if (ch == 'P') {
+			if (build = 1) {
+				//숙소
+				map[0][curr.row][curr.column] = 'D';
+				map[0][curr_a.row][curr_a.column] = 'D';
+				map[0][curr_b.row][curr_b.column] = 'D';
+				map[0][curr_c.row][curr_c.column] = 'D';
+				print_system_message("숙소 건설을 완료했습니다.");
+				current_select = -1;
+				big_cursor = false;
+			}
+			else if (build == 2) {
+				//창고
+				map[0][curr.row][curr.column] = 'G';
+				map[0][curr_a.row][curr_a.column] = 'G';
+				map[0][curr_b.row][curr_b.column] = 'G';
+				map[0][curr_c.row][curr_c.column] = 'G';
+				print_system_message("창고 건설을 완료했습니다.");
+				current_select = -1;
+				big_cursor = false;
+			}
+			else if (build == 3) {
+				//병영
+				map[0][curr.row][curr.column] = 'B';
+				map[0][curr_a.row][curr_a.column] = 'B';
+				map[0][curr_b.row][curr_b.column] = 'B';
+				map[0][curr_c.row][curr_c.column] = 'B';
+				print_system_message("병영 건설을 완료했습니다.");
+				current_select = -1;
+				big_cursor = false;
+			}
+			else if (build == 4) {
+				// 은신처
+				map[0][curr.row][curr.column] = 's';
+				map[0][curr_a.row][curr_a.column] = 's';
+				map[0][curr_b.row][curr_b.column] = 's';
+				map[0][curr_c.row][curr_c.column] = 's';
+				print_system_message("은신처 건설을 완료했습니다.");
+				current_select = -1;
+				big_cursor = false;
+			}
+		}
+		else {
+			print_system_message("건물은 장판에만 건설할 수 있습니다.");
+		}
+	
+	if (current_select == -3) { // 장판 건설
+		if (curr.row == MAP_HEIGHT - 2) {
+			print_system_message("공간이 부족합니다.");
+		}
+		else {
+			map[0][curr.row][curr.column] = 'P';
+			map[0][curr_a.row][curr_a.column] = 'P';
+			map[0][curr_b.row][curr_b.column] = 'P';
+			map[0][curr_c.row][curr_c.column] = 'P';
+			print_system_message("장판 건설을 완료했습니다.");
+			current_select = -1;
+			big_cursor = false;
+		}
+	}
+}
+
 //오브젝트 선택 함수
 void object_select(void){
 	POSITION curr = cursor.current;
 	char ch = backbuf[curr.row][curr.column];
 	if (ch == 'B') {  // 본진
-		if (curr.column < 5) {
-			object_info("본진");
-			object_cmd("H : 하베스터 생산");
-			current_select = 0;
+		if (current_select != -2 && current_select != -3) {
+			if (curr.column < 5) {
+				object_info("본진");
+				object_cmd("H : 하베스터 생산");
+				current_select = 0;
+			}
+			else {
+				object_info("본진");
+			}
 		}
-		else {
-			object_info("본진");
-		}
+		
 	}
 	else if (ch == 'P') { // 장판
 		object_info("장판");
 		object_cmd("");
+		big_cursor = false;
 		current_select = 1;
 	}
 	else if (ch == 'S') { // 스파이스
-		object_info("스파이스");
-		object_cmd("");
-		current_select = 2;
+		if (current_select != -2 && current_select != -3) {
+			object_info("스파이스");
+			object_cmd("");
+			current_select = 2;
+		}
+
 	}
 	
 	else if (ch == 'H') { // 하베스터
-		object_info("하베스터");
-		object_cmd("H: Harverst, M: Move");
-		current_select = 3;
+		if (current_select != -2 && current_select != -3) {
+			object_info("하베스터");
+			object_cmd("H: Harverst, M: Move");
+			current_select = 3;
+		}
+
 	}
 
 	else if (ch == 'h') {
-		object_info("하베스터");
-		object_cmd("");
+		if (current_select != -2 && current_select != -3) {
+			object_info("하베스터");
+			object_cmd("");
+		}
+
 	}
 
 	else if (ch == 'W') { // 샌드웜
-		object_info("샌드웜");
-		object_cmd("");
+		if (current_select != -2 && current_select != -3) {
+			object_info("샌드웜");
+			object_cmd("");
+		}
+
 	}
 
 	else if (ch == 'R') { // 바위
-		object_info("바위");
-		object_cmd("");
+		if (current_select != -2 && current_select != -3) {
+			object_info("바위");
+			object_cmd("");
+		}
+
 	}
 
 	else {
-		object_info("사막 지형");
-		object_cmd("");
+		if (current_select != -2 && current_select != -3) {
+			object_info("사막 지형");
+			object_cmd("");
+			current_select = -1;
+		}
+
 	}
 }
 

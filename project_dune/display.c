@@ -27,8 +27,11 @@ void display_cursor(CURSOR cursor);
 void display_object_info();
 void display_system_message();
 void display_commands();
+void object_cmd2(char text[], char text1[], char text2[], char text3[], char text4[]);
 
 
+bool big_cursor = false;
+bool prev_cursor_is_big = false;
 void display(
 	RESOURCE resource,
 	char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH],
@@ -107,7 +110,9 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) { // AI 본진 좌측 장판
 					if (i == MAP_HEIGHT - 17 && j == MAP_WIDTH - 5) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
 					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
-
+				}
+				else {
+					printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
 				}
 			}
 			else if (back == 'H') {
@@ -188,15 +193,45 @@ void display_object_info() {
 void display_cursor(CURSOR cursor) {
 	POSITION prev = cursor.previous;
 	POSITION curr = cursor.current;
-
-	
-	
 	char ch_prev = backbuf[prev.row][prev.column];
-	printc(padd(map_pos, prev), ch_prev, COLOR_DEFAULT);
-
 	char ch_curr = frontbuf[curr.row][curr.column];
-	printc(padd(map_pos, curr), ch_curr, COLOR_CURSOR);
+	POSITION x = { 1,0 };
+	POSITION y = { 0,1 };
+	POSITION xy = { 1,1 };
+	POSITION prev_a = padd(prev, x);
+	POSITION prev_b = padd(prev, y);
+	POSITION prev_c = padd(prev, xy);
 
+	POSITION curr_a = padd(curr, x);
+	POSITION curr_b = padd(curr, y);
+	POSITION curr_c = padd(curr, xy);
+
+	if (!big_cursor) {
+		if (prev_cursor_is_big) {
+			printc(padd(map_pos, prev_a), ch_prev, COLOR_DEFAULT);
+			printc(padd(map_pos, prev_b), ch_prev, COLOR_DEFAULT);
+			printc(padd(map_pos, prev_c), ch_prev, COLOR_DEFAULT);
+			printc(padd(map_pos, prev), ch_prev, COLOR_DEFAULT);
+			printc(padd(map_pos, curr), ch_curr, COLOR_DEFAULT);
+			printc(padd(map_pos, curr_a), ch_curr, COLOR_DEFAULT);
+			printc(padd(map_pos, curr_b), ch_curr, COLOR_DEFAULT);
+			printc(padd(map_pos, curr_c), ch_curr, COLOR_DEFAULT);
+			prev_cursor_is_big = false;
+		}
+		printc(padd(map_pos, prev), ch_prev, COLOR_DEFAULT);
+		printc(padd(map_pos, curr), ch_curr, COLOR_CURSOR);
+	}
+	else{
+		prev_cursor_is_big = true;
+		printc(padd(map_pos, prev_a), ch_prev, COLOR_DEFAULT);
+		printc(padd(map_pos, prev_b), ch_prev, COLOR_DEFAULT);
+		printc(padd(map_pos, prev_c), ch_prev, COLOR_DEFAULT);
+		printc(padd(map_pos, prev), ch_prev, COLOR_DEFAULT);
+		printc(padd(map_pos, curr), ch_curr, COLOR_CURSOR);
+		printc(padd(map_pos, curr_a), ch_curr, COLOR_CURSOR);
+		printc(padd(map_pos, curr_b), ch_curr, COLOR_CURSOR);
+		printc(padd(map_pos, curr_c), ch_curr, COLOR_CURSOR);
+	}
 }
 
 // 시스템 메시지 창
@@ -258,8 +293,31 @@ void object_info(char text[]) {
 
 void object_cmd	(char text[]) {
 	POSITION info_pos = { 20, MAP_WIDTH + 2 };
-	for (int i = 0; i < 30; i++) {
+	for (int i = 0; i < 50; i++) {
 		printc(padd(info_pos, (POSITION) { 1, i }), ' ', COLOR_WHITE);
+		printc(padd(info_pos, (POSITION) { 2, i }), ' ', COLOR_WHITE);
+		printc(padd(info_pos, (POSITION) { 3, i }), ' ', COLOR_WHITE);
+		printc(padd(info_pos, (POSITION) { 4, i }), ' ', COLOR_WHITE);
+		printc(padd(info_pos, (POSITION) { 5, i }), ' ', COLOR_WHITE);
+		printc(padd(info_pos, (POSITION) { 6, i }), ' ', COLOR_WHITE);
 	}
 	print_info(padd(info_pos, (POSITION) { 1, 1 }), text, COLOR_WHITE);
+}
+
+void object_cmd2(char text[], char text1[], char text2[], char text3[], char text4[], char text5[]) {
+	POSITION start_pos = { 20, MAP_WIDTH + 2 };
+	for (int i = 0; i < 50; i++) {
+		printc(padd(start_pos, (POSITION) { 1, i }), ' ', COLOR_WHITE);
+		printc(padd(start_pos, (POSITION) { 2, i }), ' ', COLOR_WHITE);
+		printc(padd(start_pos, (POSITION) { 3, i }), ' ', COLOR_WHITE);
+		printc(padd(start_pos, (POSITION) { 4, i }), ' ', COLOR_WHITE);
+		printc(padd(start_pos, (POSITION) { 5, i }), ' ', COLOR_WHITE);
+		printc(padd(start_pos, (POSITION) { 6, i }), ' ', COLOR_WHITE);
+	}
+	print_info(padd(start_pos, (POSITION) { 1, 1 }), text, COLOR_WHITE);	
+	print_info(padd(start_pos, (POSITION) { 2, 1 }), text1, COLOR_WHITE);
+	print_info(padd(start_pos, (POSITION) { 3, 1 }), text2, COLOR_WHITE);
+	print_info(padd(start_pos, (POSITION) { 4, 1 }), text3, COLOR_WHITE);
+	print_info(padd(start_pos, (POSITION) { 5, 1 }), text4, COLOR_WHITE);
+	print_info(padd(start_pos, (POSITION) { 6, 1 }), text5, COLOR_WHITE);
 }

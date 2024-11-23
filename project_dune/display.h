@@ -12,7 +12,7 @@
 
 
 extern char backbuf[MAP_HEIGHT][MAP_WIDTH];
-
+extern bool big_cursor;
 
 // 표시할 색상 정의. 대충 맞춰 뒀는데, 취향껏 추가하거나 변경하기
 #define COLOR_DEFAULT	7
@@ -36,6 +36,7 @@ void display(
 
 void object_info(char text[]);
 void object_cmd(char text[]);
+void object_cmd2(char text[], char text1[], char text2[], char text3[], char text4[]);
 void print_system_message(char text[]);
 
 #endif
