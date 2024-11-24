@@ -257,62 +257,67 @@ void object_build(int build) {
 	POSITION curr_c = padd(curr, xy);
 	char ch = backbuf[curr.row][curr.column];
 
-		if (ch == 'P') {
-			if (build = 1) {
+		if (ch == 'p') {
+			if (build == 1) {
 				//숙소
-				map[0][curr.row][curr.column] = 'D';
+				map[0][curr.row][curr.column] = 'd';
 				map[0][curr_a.row][curr_a.column] = 'D';
 				map[0][curr_b.row][curr_b.column] = 'D';
 				map[0][curr_c.row][curr_c.column] = 'D';
-				print_system_message("숙소 건설을 완료했습니다.");
+				print_system_message("숙소 건설을 완료했습니다.                ");
 				current_select = -1;
 				big_cursor = false;
+				resource.population_max += 10;
 			}
 			else if (build == 2) {
 				//창고
-				map[0][curr.row][curr.column] = 'G';
+				map[0][curr.row][curr.column] = 'g';
 				map[0][curr_a.row][curr_a.column] = 'G';
 				map[0][curr_b.row][curr_b.column] = 'G';
 				map[0][curr_c.row][curr_c.column] = 'G';
-				print_system_message("창고 건설을 완료했습니다.");
+				print_system_message("창고 건설을 완료했습니다.               ");
+				resource.spice_max += 10;
 				current_select = -1;
 				big_cursor = false;
 			}
 			else if (build == 3) {
 				//병영
-				map[0][curr.row][curr.column] = 'B';
-				map[0][curr_a.row][curr_a.column] = 'B';
-				map[0][curr_b.row][curr_b.column] = 'B';
-				map[0][curr_c.row][curr_c.column] = 'B';
-				print_system_message("병영 건설을 완료했습니다.");
+				map[0][curr.row][curr.column] = 'a';
+				map[0][curr_a.row][curr_a.column] = 'A';
+				map[0][curr_b.row][curr_b.column] = 'A';
+				map[0][curr_c.row][curr_c.column] = 'A';
+				print_system_message("병영 건설을 완료했습니다.                 ");
 				current_select = -1;
 				big_cursor = false;
 			}
 			else if (build == 4) {
 				// 은신처
-				map[0][curr.row][curr.column] = 's';
-				map[0][curr_a.row][curr_a.column] = 's';
-				map[0][curr_b.row][curr_b.column] = 's';
-				map[0][curr_c.row][curr_c.column] = 's';
-				print_system_message("은신처 건설을 완료했습니다.");
+				map[0][curr.row][curr.column] = 'r';
+				map[0][curr_a.row][curr_a.column] = 'z';
+				map[0][curr_b.row][curr_b.column] = 'z';
+				map[0][curr_c.row][curr_c.column] = 'z';
+				print_system_message("은신처 건설을 완료했습니다.                ");
 				current_select = -1;
 				big_cursor = false;
 			}
 		}
 		else {
-			print_system_message("건물은 장판에만 건설할 수 있습니다.");
+			if (build != 0) {
+				print_system_message("건물은 장판에만 건설할 수 있습니다.             ");
+			}
+			
 		}
 	
 	if (current_select == -3) { // 장판 건설
 		if (curr.row == MAP_HEIGHT - 2) {
-			print_system_message("공간이 부족합니다.");
+			print_system_message("공간이 부족합니다.                ");
 		}
 		else {
-			map[0][curr.row][curr.column] = 'P';
+			map[0][curr.row][curr.column] = 'p';
 			map[0][curr_a.row][curr_a.column] = 'P';
 			map[0][curr_b.row][curr_b.column] = 'P';
 			map[0][curr_c.row][curr_c.column] = 'P';
-			print_system_message("장판 건설을 완료했습니다.");
+			print_system_message("장판 건설을 완료했습니다.            ");
 			current_select = -1;
 			big_cursor = false;
 		}
@@ -384,13 +389,24 @@ void object_select(void){
 
 	}
 
+	else if (ch == 'a' || ch == 'A') { // 병영
+		object_info("병영");
+		object_cmd("S: Soldier");
+		current_select = 4;
+	}
+
+	else if (ch == 'r' || ch == 'z') {
+		object_info("은신처");
+		object_cmd("F: Fremen");
+		current_select = 5;
+	}
+
 	else {
 		if (current_select != -2 && current_select != -3) {
 			object_info("사막 지형");
 			object_cmd("");
 			current_select = -1;
 		}
-
 	}
 }
 
@@ -415,7 +431,12 @@ void init(void) {
 				map[0][i][j] = 'B';
 			}
 			else if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 본진 우측 장판
-				map[0][i][j] = 'P';
+				if (i == MAP_HEIGHT - 3 && j == 3) {
+					map[0][i][j] = 'p';
+				}
+				else {
+					map[0][i][j] = 'P';
+				}
 			}
 			else if (i == MAP_HEIGHT - 4 && j == 1) { // 플레이어 본진 하베스터
 				map[0][i][j] = 'H';
@@ -427,7 +448,12 @@ void init(void) {
 				map[0][i][j] = 'B';
 			}
 			else if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) { // AI 장판
-				map[0][i][j] = 'P';
+				if (i == MAP_HEIGHT - 17 && j == MAP_WIDTH - 5) {
+					map[0][i][j] = 'p';
+				}
+				else {
+					map[0][i][j] = 'P';
+				}
 			}
 			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) { // AI 하베스터
 				map[0][i][j] = 'h';

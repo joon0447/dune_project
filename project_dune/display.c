@@ -102,18 +102,10 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				}
 			}
 			else if (back == 'P') {
-				if (i >= MAP_HEIGHT - 3 && i < MAP_HEIGHT - 1 && j >= 3 && j < 5) { // 플레이어 장판
-					if (i == MAP_HEIGHT - 3 && j == 3) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
-					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
-				}
-				
-				if (i >= MAP_HEIGHT - 17 && i < MAP_HEIGHT - 15 && j >= MAP_WIDTH - 5 && j < MAP_WIDTH - 3) { // AI 본진 좌측 장판
-					if (i == MAP_HEIGHT - 17 && j == MAP_WIDTH - 5) printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
-					else printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
-				}
-				else {
-					printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
-				}
+				printBgc(padd(map_pos, pos), backbuf[i][j], COLOR_DEFAULT, COLOR_DEFAULT);
+			}
+			else if (back == 'p') {
+				printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_DEFAULT);
 			}
 			else if (back == 'H') {
 				printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_BLUE);
@@ -126,6 +118,30 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			}
 			else if (back == 'x') {
 				printBgc(padd(map_pos, pos), ' ', COLOR_BLACK, COLOR_BLACK);
+			}
+			else if (back == 'd') {
+				printBgc(padd(map_pos, pos), 'D', COLOR_WHITE, COLOR_GREEN);
+			}
+			else if (back == 'D') {
+				printBgc(padd(map_pos, pos), ' ', COLOR_GREEN, COLOR_GREEN);
+			}
+			else if (back == 'g') {
+				printBgc(padd(map_pos, pos), 'G', COLOR_WHITE, COLOR_OK);
+			}
+			else if (back == 'G') {
+				printBgc(padd(map_pos, pos), ' ', COLOR_OK, COLOR_OK);
+			}
+			else if (back == 'a') {
+				printBgc(padd(map_pos, pos), 'B', COLOR_WHITE, COLOR_PURPLE);
+			}
+			else if (back == 'A') {
+				printBgc(padd(map_pos, pos), ' ', COLOR_WHITE, COLOR_PURPLE);
+			}
+			else if (back == 'r') {
+				printBgc(padd(map_pos, pos), 'S', COLOR_WHITE, COLOR_P);
+			}
+			else if (back == 'z') {
+				printBgc(padd(map_pos, pos), ' ', COLOR_WHITE, COLOR_P);
 			}
 		}
 	}

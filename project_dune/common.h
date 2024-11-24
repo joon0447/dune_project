@@ -102,4 +102,14 @@ typedef struct {
 	int speed;
 } SANDWORM;
 
+typedef struct {
+	POSITION pos;
+	int population;
+	int move_period;
+	int attack;
+	int attack_period;
+	int sight;
+	char cmd[];
+}UNIT;
+
 #endif
