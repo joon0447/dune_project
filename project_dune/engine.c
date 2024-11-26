@@ -36,6 +36,7 @@ bool obj2_dest(void);
 
 void create_harvester(void);
 void calc_count(void);
+void create_harvester_pointer(int row, int column);
 
 POSITION obj1_next_position(void);
 POSITION obj2_next_position(void);
@@ -73,6 +74,9 @@ SANDWORM obj2 = {
 	.speed = 300,
 	.next_move_time = 300
 };
+
+UNIT* unit_map[MAP_HEIGHT][MAP_WIDTH]; // 유닛 정보 저장
+
 
 int current_select = -1;
 bool make_harve = false;
@@ -144,7 +148,7 @@ int main(void) {
 			case k_esc:
 				object_info(" ");
 				object_cmd(" ");
-				if (current_select == -2 || current_select != -3) {
+				if (current_select == -2 || current_select == -3) {
 					print_system_message("건물 건설 모드를 종료합니다.");
 				}
 				current_select = -1;
@@ -161,6 +165,7 @@ int main(void) {
 					current_select = -2;
 					big_cursor = false;
 					object_cmd2("P: Plate", "D: Dormitory", "G: Garage", "B: Barracks", "S: Shelter", "ESC : Cancel");
+					print_system_message("건물 건설 모드를 시작합니다.");
 				}
 				else if (current_select == -2) {
 					big_cursor = true;
@@ -353,12 +358,14 @@ void object_select(void){
 			object_cmd("");
 			current_select = 2;
 		}
-
 	}
 	
 	else if (ch == 'H') { // 하베스터
 		if (current_select != -2 && current_select != -3) {
-			object_info("하베스터");
+			UNIT* unit = unit_map[curr.row][curr.column];
+			char buffer[100];
+			sprintf_s(buffer, sizeof(buffer), "하베스터 : 체력 %d / %d", unit->hp,unit->max_hp);
+			object_info(buffer);
 			object_cmd("H: Harverst, M: Move");
 			current_select = 3;
 		}
@@ -367,7 +374,10 @@ void object_select(void){
 
 	else if (ch == 'h') {
 		if (current_select != -2 && current_select != -3) {
-			object_info("하베스터");
+			UNIT* unit = unit_map[curr.row][curr.column];
+			char buffer[100];
+			sprintf_s(buffer, sizeof(buffer), "하베스터 : 체력 %d / %d", unit->hp, unit->max_hp);
+			object_info(buffer);
 			object_cmd("");
 		}
 
@@ -411,6 +421,14 @@ void object_select(void){
 }
 
 void init(void) {
+	//unit_map 초기화
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			unit_map[i][j] = NULL;
+		}
+	}
+
+
 	// layer 0(map[0])에 지형 생성
 	for (int j = 0; j < MAP_WIDTH; j++) {
 		map[0][0][j] = '#';
@@ -439,6 +457,7 @@ void init(void) {
 				}
 			}
 			else if (i == MAP_HEIGHT - 4 && j == 1) { // 플레이어 본진 하베스터
+				create_harvester_pointer(i, j);
 				map[0][i][j] = 'H';
 			}
 			else if (i == MAP_HEIGHT - 6 && j == 1) { // 플레이어 본진 스파이스
@@ -456,6 +475,7 @@ void init(void) {
 				}
 			}
 			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) { // AI 하베스터
+				create_harvester_pointer(i, j);
 				map[0][i][j] = 'h';
 			}
 			else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 스파이스
@@ -710,18 +730,41 @@ POSITION obj2_next_position(void) {
 
 void create_harvester() {
 	if (resource.spice >= 5) {
+		int a = 0;
+		int b = 0;
 		//i == MAP_HEIGHT - 4 && j == 1
 		for (int i = 1; i < MAP_WIDTH; i++) {
 			if (backbuf[MAP_HEIGHT - 4][i] != 'H') {
 				map[0][MAP_HEIGHT - 4][i] = 'H';
+				a = MAP_HEIGHT - 4;
+				b = i;
 				break;
 			}
 		}
+		create_harvester_pointer(a, b);
 		resource.spice -= 5;
 		print_system_message("하베스터가 생산 되었습니다.                   ");
 	}
 	else {
 		print_system_message("하베스터 생산에 필요한 스파이스가 부족합니다.");
 	}
-	
+}
+
+void create_harvester_pointer(int row, int column) {
+	UNIT* harvester = (UNIT*)malloc(sizeof(UNIT));
+	if (!harvester) {
+		print_system_message("하베스터 생성에 실패했습니다 : 메모리 부족");
+		return;
+	}
+	POSITION pos = { row, column };
+	harvester->pos = pos;
+	harvester->work = false;
+	harvester->population = 5;
+	harvester->move_period = 2000;
+	harvester->attack = 0;
+	harvester->attack_period = 0;
+	harvester->hp = 70;
+	harvester->max_hp = 70;
+	harvester->sight = 0;
+	unit_map[pos.row][pos.column] = harvester;
 }

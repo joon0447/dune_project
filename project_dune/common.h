@@ -104,10 +104,14 @@ typedef struct {
 
 typedef struct {
 	POSITION pos;
+	bool work;
+	POSITION des;
 	int population;
 	int move_period;
 	int attack;
 	int attack_period;
+	int hp;
+	int max_hp;
 	int sight;
 	char cmd[];
 }UNIT;
