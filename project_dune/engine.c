@@ -33,6 +33,9 @@ void obj1_eat(void);
 void obj2_eat(void);
 bool obj1_dest(void);
 bool obj2_dest(void);
+bool is_spice_there(int row, int column);
+void work_harvester(void);
+void unit_move(UNIT* unit, int id);
 
 void create_harvester(void);
 void calc_count(void);
@@ -77,8 +80,17 @@ SANDWORM obj2 = {
 
 UNIT* unit_map[MAP_HEIGHT][MAP_WIDTH]; // 유닛 정보 저장
 
+ORDER_UNIT order_unit = {
+	.row = 0,
+	.column = 0,
+};
 
 int current_select = -1;
+/*
+-1 : 기본 모드
+-2 : 건설 모드
+
+*/
 bool make_harve = false;
 int count_harve = 0;
 
@@ -151,12 +163,19 @@ int main(void) {
 				if (current_select == -2 || current_select == -3) {
 					print_system_message("건물 건설 모드를 종료합니다.");
 				}
+				else if (current_select == 10) {
+					print_system_message("스파이스 선택 모드를 종료합니다.");
+				}
 				current_select = -1;
 				big_cursor = false;
 				break;
 			case k_h:
 				if (current_select == 0) {
 					create_harvester();
+				}
+				else if (current_select == 3) { // harvest
+					print_system_message("스파이스 매장지를 선택해주세요.");
+					current_select = 10;
 				}
 				big_cursor = false;
 				break;
@@ -214,7 +233,8 @@ int main(void) {
 
 		obj1_move();
 		obj2_move();
-
+		
+		work_harvester();
 		// 화면 출력
 		display(resource, map, cursor);
 		Sleep(TICK);
@@ -333,89 +353,111 @@ void object_build(int build) {
 void object_select(void){
 	POSITION curr = cursor.current;
 	char ch = backbuf[curr.row][curr.column];
-	if (ch == 'B') {  // 본진
-		if (current_select != -2 && current_select != -3) {
-			if (curr.column < 5) {
-				object_info("본진");
-				object_cmd("H : 하베스터 생산");
-				current_select = 0;
+	if (current_select != 10) {
+		if (ch == 'B') {  // 본진
+			if (current_select != -2 && current_select != -3) {
+				if (curr.column < 5) {
+					object_info("본진");
+					object_cmd("H : 하베스터 생산");
+					current_select = 0;
+				}
+				else {
+					object_info("본진");
+				}
 			}
-			else {
-				object_info("본진");
+
+		}
+		else if (ch == 'P') { // 장판
+			object_info("장판");
+			object_cmd("");
+			big_cursor = false;
+			current_select = 1;
+		}
+		else if (ch == 'S') { // 스파이스
+			
+			if (current_select != -2 && current_select != -3) {
+				object_info("스파이스");
+				object_cmd("");
+				current_select = 2;
 			}
 		}
-		
-	}
-	else if (ch == 'P') { // 장판
-		object_info("장판");
-		object_cmd("");
-		big_cursor = false;
-		current_select = 1;
-	}
-	else if (ch == 'S') { // 스파이스
-		if (current_select != -2 && current_select != -3) {
-			object_info("스파이스");
-			object_cmd("");
-			current_select = 2;
-		}
-	}
-	
-	else if (ch == 'H') { // 하베스터
-		if (current_select != -2 && current_select != -3) {
-			UNIT* unit = unit_map[curr.row][curr.column];
-			char buffer[100];
-			sprintf_s(buffer, sizeof(buffer), "하베스터 : 체력 %d / %d", unit->hp,unit->max_hp);
-			object_info(buffer);
-			object_cmd("H: Harverst, M: Move");
-			current_select = 3;
+
+		else if (ch == 'H') { // 하베스터
+			if (current_select != -2 && current_select != -3) {
+				UNIT* unit = unit_map[curr.row][curr.column];
+
+				order_unit.row = curr.row;
+				order_unit.column = curr.column;
+
+				char buffer[100];
+				sprintf_s(buffer, sizeof(buffer), "하베스터 : 체력 %d / %d", unit->hp, unit->max_hp);
+				object_info(buffer);
+				object_cmd("H: Harverst, M: Move");
+				current_select = 3;
+			}
+
 		}
 
-	}
+		else if (ch == 'h') {
+			if (current_select != -2 && current_select != -3) {
+				UNIT* unit = unit_map[curr.row][curr.column];
+				char buffer[100];
+				sprintf_s(buffer, sizeof(buffer), "하베스터 : 체력 %d / %d", unit->hp, unit->max_hp);
+				object_info(buffer);
+				object_cmd("");
+			}
 
-	else if (ch == 'h') {
-		if (current_select != -2 && current_select != -3) {
-			UNIT* unit = unit_map[curr.row][curr.column];
-			char buffer[100];
-			sprintf_s(buffer, sizeof(buffer), "하베스터 : 체력 %d / %d", unit->hp, unit->max_hp);
-			object_info(buffer);
-			object_cmd("");
 		}
 
-	}
+		else if (ch == 'W') { // 샌드웜
+			if (current_select != -2 && current_select != -3) {
+				object_info("샌드웜");
+				object_cmd("");
+			}
 
-	else if (ch == 'W') { // 샌드웜
-		if (current_select != -2 && current_select != -3) {
-			object_info("샌드웜");
-			object_cmd("");
 		}
 
-	}
+		else if (ch == 'R') { // 바위
+			if (current_select != -2 && current_select != -3) {
+				object_info("바위");
+				object_cmd("");
+			}
 
-	else if (ch == 'R') { // 바위
-		if (current_select != -2 && current_select != -3) {
-			object_info("바위");
-			object_cmd("");
 		}
 
-	}
+		else if (ch == 'a' || ch == 'A') { // 병영
+			object_info("병영");
+			object_cmd("S: Soldier");
+			current_select = 4;
+		}
 
-	else if (ch == 'a' || ch == 'A') { // 병영
-		object_info("병영");
-		object_cmd("S: Soldier");
-		current_select = 4;
-	}
+		else if (ch == 'r' || ch == 'z') {
+			object_info("은신처");
+			object_cmd("F: Fremen");
+			current_select = 5;
+		}
 
-	else if (ch == 'r' || ch == 'z') {
-		object_info("은신처");
-		object_cmd("F: Fremen");
-		current_select = 5;
+		else {
+			if (current_select != -2 && current_select != -3) {
+				object_info("사막 지형");
+				object_cmd("");
+				current_select = -1;
+			}
+		}
 	}
-
-	else {
-		if (current_select != -2 && current_select != -3) {
-			object_info("사막 지형");
-			object_cmd("");
+	else if(current_select == 10) { // 하베스터 수확
+		if (ch == 'S' || (ch >= 49 && ch <=57)) { 
+			POSITION des = cursor.current;
+			UNIT* unit = unit_map[order_unit.row][order_unit.column];
+			unit->des = des;
+			unit->work = true;
+			unit->spice_pos = des;
+			print_system_message("하베스터가 스파이스 수확을 시작합니다.     ");
 			current_select = -1;
+		}
+		else {
+			print_system_message("스파이스 지형을 선택해주세요.          ");
+			print_system_message("취소하려면 ESC를 눌러주세요.           ");
 		}
 	}
 }
@@ -681,8 +723,6 @@ bool obj2_dest(void) {
 	return false;
 }
 
-
-
 POSITION obj2_next_position(void) {
 	// 현재 위치와 목적지를 비교해서 이동 방향 결정	
 	POSITION diff = psub(obj2.dest, obj2.pos);
@@ -760,11 +800,85 @@ void create_harvester_pointer(int row, int column) {
 	harvester->pos = pos;
 	harvester->work = false;
 	harvester->population = 5;
-	harvester->move_period = 2000;
+	harvester->move_period = 200;
+	harvester->next_move_time = 0;
 	harvester->attack = 0;
 	harvester->attack_period = 0;
 	harvester->hp = 70;
 	harvester->max_hp = 70;
 	harvester->sight = 0;
+	harvester->start_pos = pos;
+	harvester->id = 0;
 	unit_map[pos.row][pos.column] = harvester;
+}
+
+bool is_spice_there(int row, int column) {
+	return map[0][row][column] == 'S';
+}
+
+void work_harvester() {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			UNIT* unit = unit_map[i][j];
+			if (unit != NULL) {
+				if (unit->id == 0) {
+					if (unit->work) {
+						if (sys_clock <= unit->next_move_time) {
+							return;
+						}
+						unit_move(unit, 0);
+					}
+				}
+			}
+			
+		}
+	}
+}
+
+void unit_move(UNIT* unit, int id) {
+	POSITION diff = psub(unit->des, unit->pos);
+	DIRECTION dir;
+
+	// 목적지 도착
+	if (diff.row == 0 && diff.column == 0) {
+		POSITION des = unit->des;
+		POSITION start_pos = unit->start_pos;
+		if (id == 0) { // 하베스터
+			if(des.row == start_pos.row && des.column == start_pos.column) { // 스파이스 먹으러 가기
+				unit->des = unit->spice_pos;
+			}
+			else { // 본진으로 복귀하기
+				unit->des = unit->start_pos;
+			}
+		}
+		return;
+	}
+
+	if (abs(diff.row) >= abs(diff.column)) {
+		dir = (diff.row >= 0) ? d_down : d_up;
+	}
+	else {
+		dir = (diff.column >= 0) ? d_right : d_left;
+	}
+
+	POSITION curr_pos = unit->pos;
+	POSITION next_pos = pmove(unit->pos, dir);
+	if (1 <= next_pos.row && next_pos.row <= MAP_HEIGHT - 2 && \
+		1 <= next_pos.column && next_pos.column <= MAP_WIDTH - 2 && \
+		map[1][next_pos.row][next_pos.column] < 0) {
+
+	}
+	else {
+		// 제자리
+		next_pos = unit->pos;
+	}
+
+	if (id == 0) {
+		map[0][curr_pos.row][curr_pos.column] = 'x';
+		map[0][next_pos.row][next_pos.column] = 'H';
+		unit_map[curr_pos.row][curr_pos.column] = NULL;
+		unit_map[next_pos.row][next_pos.column] = unit;
+		unit->pos = next_pos;
+		unit->next_move_time = sys_clock + unit->move_period;
+	}
 }

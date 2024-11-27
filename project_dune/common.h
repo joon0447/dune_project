@@ -103,9 +103,17 @@ typedef struct {
 } SANDWORM;
 
 typedef struct {
-	POSITION pos;
+	int row;
+	int column;
+}ORDER_UNIT;
+
+typedef struct {
+	POSITION start_pos; // 생성된 위치 (본진)
+	POSITION pos; // 현재 위치
+	POSITION des; // 목적지
+	POSITION spice_pos; // 스파이스 위치
 	bool work;
-	POSITION des;
+	int next_move_time;
 	int population;
 	int move_period;
 	int attack;
@@ -113,7 +121,16 @@ typedef struct {
 	int hp;
 	int max_hp;
 	int sight;
+	int id;
+	int take_spice;
 	char cmd[];
 }UNIT;
+
+/*
+UNIT
+id
+0 -> 하베스터
+
+*/
 
 #endif
