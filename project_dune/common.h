@@ -42,6 +42,7 @@ typedef enum {
 	k_s,
 	k_space,
 	k_h,
+	k_m,
 	k_esc,
 	k_x,
 	k_undef, // 정의되지 않은 키 입력	
@@ -113,9 +114,11 @@ typedef struct {
 	POSITION des; // 목적지
 	POSITION spice_pos; // 스파이스 위치
 	bool work;
+	int work_type; // 0 : move / 1: patrol
 	int next_move_time;
 	int population;
 	int move_period;
+	int hold_time;
 	int attack;
 	int attack_period;
 	int hp;
@@ -123,14 +126,13 @@ typedef struct {
 	int sight;
 	int id;
 	int take_spice;
-	char cmd[];
 }UNIT;
 
 /*
 UNIT
 id
 0 -> 하베스터
-
+1 -> 보병
 */
 
 #endif

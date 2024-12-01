@@ -1,3 +1,3 @@
 ﻿  engine.c
-D:\github\dune_project\project_dune\engine.c(186,88): warning C4020: 'object_cmd2': 실제 매개 변수가 너무 많습니다.
+D:\github\dune_project\project_dune\engine.c(192,88): warning C4020: 'object_cmd2': 실제 매개 변수가 너무 많습니다.
   project_dune.vcxproj -> D:\github\dune_project\Debug\project_dune.exe

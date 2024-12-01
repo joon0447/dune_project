@@ -37,14 +37,18 @@ bool is_spice_there(int row, int column);
 void work_harvester(void);
 void unit_move(UNIT* unit, int id);
 
+void move_marin();
 void create_harvester(void);
 void calc_count(void);
 void create_harvester_pointer(int row, int column);
+
 
 POSITION obj1_next_position(void);
 POSITION obj2_next_position(void);
 
 POSITION pos = { 1,0 };
+
+UNIT* curr_unit;
 
 
 /* ================= control =================== */
@@ -56,10 +60,10 @@ CURSOR cursor = { { 1, 1 }, {1, 1} };
 char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH] = { 0 };
 
 RESOURCE resource = {
-	.spice = 5,
+	.spice = 10,
 	.spice_max = 0,
 	.population = 0,
-	.population_max = 0
+	.population_max = 10
 };
 
 SANDWORM obj = {
@@ -93,6 +97,8 @@ int current_select = -1;
 */
 bool make_harve = false;
 int count_harve = 0;
+
+bool s_flag = true;
 
 /* ================= main() =================== */
 int main(void) {
@@ -161,10 +167,10 @@ int main(void) {
 				object_info(" ");
 				object_cmd(" ");
 				if (current_select == -2 || current_select == -3) {
-					print_system_message("건물 건설 모드를 종료합니다.");
+					print_system_message("건물 건설 모드를 종료합니다.                          ");
 				}
 				else if (current_select == 10) {
-					print_system_message("스파이스 선택 모드를 종료합니다.");
+					print_system_message("스파이스 선택 모드를 종료합니다.                          ");
 				}
 				current_select = -1;
 				big_cursor = false;
@@ -174,7 +180,7 @@ int main(void) {
 					create_harvester();
 				}
 				else if (current_select == 3) { // harvest
-					print_system_message("스파이스 매장지를 선택해주세요.");
+					print_system_message("스파이스 매장지를 선택해주세요.                          ");
 					current_select = 10;
 				}
 				big_cursor = false;
@@ -184,11 +190,11 @@ int main(void) {
 					current_select = -2;
 					big_cursor = false;
 					object_cmd2("P: Plate", "D: Dormitory", "G: Garage", "B: Barracks", "S: Shelter", "ESC : Cancel");
-					print_system_message("건물 건설 모드를 시작합니다.");
+					print_system_message("건물 건설 모드를 시작합니다.                          ");
 				}
 				else if (current_select == -2) {
 					big_cursor = true;
-					print_system_message("건설할 장판을 선택해주세요.");
+					print_system_message("건설할 장판을 선택해주세요.                          ");
 					current_select = -6;
 				}
 
@@ -198,26 +204,86 @@ int main(void) {
 					current_select = -3;
 					big_cursor = true;	
 				}
+				else if (current_select = 6) {
+
+				}
 				break;
 			case k_d: // 숙소
 				if (current_select == -2) {
 					big_cursor = true;
-					print_system_message("건설할 장판을 선택해주세요.");
+					print_system_message("건설할 장판을 선택해주세요.                          ");
 					current_select = -4;
 				}
 				break;
 			case k_g: // 창고
 				if (current_select == -2) {
 					big_cursor = true;
-					print_system_message("건설할 장판을 선택해주세요.");
+					print_system_message("건설할 장판을 선택해주세요.                          ");
 					current_select = -5;
 				}
 				break;
+			case k_m:
+				if (current_select == 6) {
+					print_system_message("이동할 장소를 선택해주세요.                         ");
+					if (curr_unit != NULL) {
+						curr_unit->work_type = 0;
+					}
+				}
 			case k_s:
 				if (current_select == -2) {
 					big_cursor = true;
-					print_system_message("건설할 장판을 선택해주세요.");
+					print_system_message("건설할 장판을 선택해주세요.                                ");
 					current_select = -7;
+				}
+				else if (current_select == 4) { // 보병 생산
+					s_flag = true;
+					if (resource.population_max - resource.population >= 1) {
+						if (resource.spice >= 5) {
+							for (int i = 0; i < MAP_HEIGHT; i++) {
+								for (int j = 0; j < MAP_WIDTH; j++) {
+									char back = backbuf[i][j];
+									if (back != '#') {
+										map[0][i][j] = 'o';
+										resource.spice -= 5;
+										resource.population += 1;
+
+										UNIT* marin = (UNIT*)malloc(sizeof(UNIT));
+										if (!marin) {
+											print_system_message("보병 생성에 실패했습니다 : 메모리 부족      ");
+											return;
+										}
+
+										POSITION pos = { i, j };
+										marin->pos = pos;
+										marin->start_pos = pos;
+										marin->move_period = 400;
+										marin->attack = 15;
+										marin->attack_period = 200;
+										marin->max_hp = 25;
+										marin->hp = 25;
+										marin->sight = 8;
+										marin->id = 1;
+										unit_map[pos.row][pos.column] = marin;
+										print_system_message("보병이 생산되었습니다.                   ");
+										s_flag = false;
+										break;
+									}
+								}
+								if (!s_flag) {
+									break;
+								}
+							}
+							if (s_flag == true) {
+								print_system_message("생성할 공간이 부족합니다.                     ");
+							}
+						}
+						else {
+							print_system_message("스파이스가 부족합니다.                              ");
+						}
+					}
+					else {
+						print_system_message("인구수가 부족합니다.                              ");
+					}
 				}
 				break;
 			case k_none:
@@ -229,6 +295,8 @@ int main(void) {
 		if (current_select == -1) {
 			object_cmd("B: Build");
 		}
+
+		move_marin();
 
 
 		obj1_move();
@@ -285,43 +353,67 @@ void object_build(int build) {
 		if (ch == 'p') {
 			if (build == 1) {
 				//숙소
-				map[0][curr.row][curr.column] = 'd';
-				map[0][curr_a.row][curr_a.column] = 'D';
-				map[0][curr_b.row][curr_b.column] = 'D';
-				map[0][curr_c.row][curr_c.column] = 'D';
-				print_system_message("숙소 건설을 완료했습니다.                ");
+				if (resource.spice >= 2) {
+					map[0][curr.row][curr.column] = 'd';
+					map[0][curr_a.row][curr_a.column] = 'D';
+					map[0][curr_b.row][curr_b.column] = 'D';
+					map[0][curr_c.row][curr_c.column] = 'D';
+					print_system_message("숙소 건설을 완료했습니다.                ");
+					resource.population_max += 10;
+					resource.spice -= 2;
+				}
+				else {
+					print_system_message("스파이스가 부족합니다.                ");
+				}
 				current_select = -1;
 				big_cursor = false;
-				resource.population_max += 10;
 			}
 			else if (build == 2) {
 				//창고
-				map[0][curr.row][curr.column] = 'g';
-				map[0][curr_a.row][curr_a.column] = 'G';
-				map[0][curr_b.row][curr_b.column] = 'G';
-				map[0][curr_c.row][curr_c.column] = 'G';
-				print_system_message("창고 건설을 완료했습니다.               ");
-				resource.spice_max += 10;
+				if (resource.spice >= 4) {
+					map[0][curr.row][curr.column] = 'g';
+					map[0][curr_a.row][curr_a.column] = 'G';
+					map[0][curr_b.row][curr_b.column] = 'G';
+					map[0][curr_c.row][curr_c.column] = 'G';
+					print_system_message("창고 건설을 완료했습니다.               ");
+					resource.spice_max += 10;
+					resource.spice -= 4;
+				}
+				else {
+					print_system_message("스파이스가 부족합니다.                ");
+				}
 				current_select = -1;
 				big_cursor = false;
 			}
 			else if (build == 3) {
 				//병영
-				map[0][curr.row][curr.column] = 'a';
-				map[0][curr_a.row][curr_a.column] = 'A';
-				map[0][curr_b.row][curr_b.column] = 'A';
-				map[0][curr_c.row][curr_c.column] = 'A';
-				print_system_message("병영 건설을 완료했습니다.                 ");
+				if (resource.spice > +4) {
+					map[0][curr.row][curr.column] = 'a';
+					map[0][curr_a.row][curr_a.column] = 'A';
+					map[0][curr_b.row][curr_b.column] = 'A';
+					map[0][curr_c.row][curr_c.column] = 'A';
+					resource.spice -= 4;
+					print_system_message("병영 건설을 완료했습니다.                 ");
+				}
+				else {
+					print_system_message("스파이스가 부족합니다.                ");
+				}
 				current_select = -1;
 				big_cursor = false;
 			}
 			else if (build == 4) {
 				// 은신처
-				map[0][curr.row][curr.column] = 'r';
-				map[0][curr_a.row][curr_a.column] = 'z';
-				map[0][curr_b.row][curr_b.column] = 'z';
-				map[0][curr_c.row][curr_c.column] = 'z';
-				print_system_message("은신처 건설을 완료했습니다.                ");
+				if (resource.spice >= 5) {
+					map[0][curr.row][curr.column] = 'r';
+					map[0][curr_a.row][curr_a.column] = 'z';
+					map[0][curr_b.row][curr_b.column] = 'z';
+					map[0][curr_c.row][curr_c.column] = 'z';
+					resource.spice -= 5;
+					print_system_message("은신처 건설을 완료했습니다.                ");
+				}
+				else {
+					print_system_message("스파이스가 부족합니다.                ");
+				}
 				current_select = -1;
 				big_cursor = false;
 			}
@@ -338,11 +430,17 @@ void object_build(int build) {
 			print_system_message("공간이 부족합니다.                ");
 		}
 		else {
-			map[0][curr.row][curr.column] = 'p';
-			map[0][curr_a.row][curr_a.column] = 'P';
-			map[0][curr_b.row][curr_b.column] = 'P';
-			map[0][curr_c.row][curr_c.column] = 'P';
-			print_system_message("장판 건설을 완료했습니다.            ");
+			if (resource.spice >= 1) {
+				resource.spice -= 1;
+				map[0][curr.row][curr.column] = 'p';
+				map[0][curr_a.row][curr_a.column] = 'P';
+				map[0][curr_b.row][curr_b.column] = 'P';
+				map[0][curr_c.row][curr_c.column] = 'P';
+				print_system_message("장판 건설을 완료했습니다.            ");
+			}
+			else {
+				print_system_message("스파이스가 부족합니다.                ");
+			}
 			current_select = -1;
 			big_cursor = false;
 		}
@@ -437,18 +535,39 @@ void object_select(void){
 			current_select = 5;
 		}
 
+		else if (ch == 'o') {
+			object_info("보병");
+			object_cmd("M: Move , P : Patrol");
+			current_select = 6;
+			curr_unit = unit_map[curr.row][curr.column];
+		}
+
 		else {
 			if (current_select != -2 && current_select != -3) {
 				object_info("사막 지형");
 				object_cmd("");
+				if (current_select == 6) {
+					curr_unit->des = curr;
+					curr_unit->work = true;
+					print_system_message("보병이 선택 장소로 이동합니다.                       ");
+				}
 				current_select = -1;
 			}
+			
 		}
 	}
 	else if(current_select == 10) { // 하베스터 수확
 		if (ch == 'S' || (ch >= 49 && ch <=57)) { 
 			POSITION des = cursor.current;
 			UNIT* unit = unit_map[order_unit.row][order_unit.column];
+			int spice = (int)backbuf[cursor.current.row][cursor.current.column];
+			if (spice >= 4) {
+				int random_value = (rand() % 3) + 2;
+				unit->take_spice = random_value;
+			}
+			else {
+				unit->take_spice = spice;
+			}
 			unit->des = des;
 			unit->work = true;
 			unit->spice_pos = des;
@@ -770,20 +889,26 @@ POSITION obj2_next_position(void) {
 
 void create_harvester() {
 	if (resource.spice >= 5) {
-		int a = 0;
-		int b = 0;
-		//i == MAP_HEIGHT - 4 && j == 1
-		for (int i = 1; i < MAP_WIDTH; i++) {
-			if (backbuf[MAP_HEIGHT - 4][i] != 'H') {
-				map[0][MAP_HEIGHT - 4][i] = 'H';
-				a = MAP_HEIGHT - 4;
-				b = i;
-				break;
+		if (resource.population_max - resource.population >= 5) {
+			int a = 0;
+			int b = 0;
+			//i == MAP_HEIGHT - 4 && j == 1
+			for (int i = 1; i < MAP_WIDTH; i++) {
+				if (backbuf[MAP_HEIGHT - 4][i] != 'H') {
+					map[0][MAP_HEIGHT - 4][i] = 'H';
+					a = MAP_HEIGHT - 4;
+					b = i;
+					break;
+				}
 			}
+			create_harvester_pointer(a, b);
+			resource.spice -= 5;
+			resource.population += 5;
+			print_system_message("하베스터가 생산 되었습니다.                   ");
 		}
-		create_harvester_pointer(a, b);
-		resource.spice -= 5;
-		print_system_message("하베스터가 생산 되었습니다.                   ");
+		else {
+			print_system_message("숙소 내 공간이 부족합니다.                   ");
+		}
 	}
 	else {
 		print_system_message("하베스터 생산에 필요한 스파이스가 부족합니다.");
@@ -793,7 +918,7 @@ void create_harvester() {
 void create_harvester_pointer(int row, int column) {
 	UNIT* harvester = (UNIT*)malloc(sizeof(UNIT));
 	if (!harvester) {
-		print_system_message("하베스터 생성에 실패했습니다 : 메모리 부족");
+		print_system_message("하베스터 생성에 실패했습니다 : 메모리 부족      ");
 		return;
 	}
 	POSITION pos = { row, column };
@@ -809,6 +934,8 @@ void create_harvester_pointer(int row, int column) {
 	harvester->sight = 0;
 	harvester->start_pos = pos;
 	harvester->id = 0;
+	harvester->hold_time = 0;
+	harvester->take_spice = 0;
 	unit_map[pos.row][pos.column] = harvester;
 }
 
@@ -835,6 +962,25 @@ void work_harvester() {
 	}
 }
 
+void move_marin() {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			UNIT* unit = unit_map[i][j];
+			if (unit != NULL) {
+				if (unit->id == 1) {
+					if (unit->work) {
+						if (sys_clock <= unit->next_move_time) {
+							return;
+						}
+						unit_move(unit, 1);
+					}
+				}
+			}
+
+		}
+	}
+}
+
 void unit_move(UNIT* unit, int id) {
 	POSITION diff = psub(unit->des, unit->pos);
 	DIRECTION dir;
@@ -843,13 +989,40 @@ void unit_move(UNIT* unit, int id) {
 	if (diff.row == 0 && diff.column == 0) {
 		POSITION des = unit->des;
 		POSITION start_pos = unit->start_pos;
+		
 		if (id == 0) { // 하베스터
 			if(des.row == start_pos.row && des.column == start_pos.column) { // 스파이스 먹으러 가기
-				unit->des = unit->spice_pos;
+				if (backbuf[start_pos.row][start_pos.column] == 'S' || (backbuf[start_pos.row][start_pos.column] >= 49 && backbuf[start_pos.row][start_pos.column] <= 57)) {
+					unit->des = unit->spice_pos;
+				}
 			}
 			else { // 본진으로 복귀하기
+				if (unit->hold_time == 0) {
+					unit->hold_time = sys_clock;
+					return;
+				}
+
+				if (sys_clock - unit->hold_time < 1000) {
+					return;
+				}
+
+				unit->hold_time = 0;
+				int spice = unit->take_spice;
+				if (spice + resource.spice > resource.spice_max) {
+					resource.spice = resource.spice_max;
+				}
+				else {
+					resource.spice += spice;
+				}
 				unit->des = unit->start_pos;
+				unit->take_spice = 0;
 			}
+		}
+
+		//보병
+
+		else if (id == 1) {
+
 		}
 		return;
 	}
@@ -873,9 +1046,20 @@ void unit_move(UNIT* unit, int id) {
 		next_pos = unit->pos;
 	}
 
+	// 하베스터
 	if (id == 0) {
 		map[0][curr_pos.row][curr_pos.column] = 'x';
 		map[0][next_pos.row][next_pos.column] = 'H';
+		unit_map[curr_pos.row][curr_pos.column] = NULL;
+		unit_map[next_pos.row][next_pos.column] = unit;
+		unit->pos = next_pos;
+		unit->next_move_time = sys_clock + unit->move_period;
+	}
+
+	//보병
+	else if (id == 1) {
+		map[0][curr_pos.row][curr_pos.column] = 'x';
+		map[0][next_pos.row][next_pos.column] = 'o';
 		unit_map[curr_pos.row][curr_pos.column] = NULL;
 		unit_map[next_pos.row][next_pos.column] = unit;
 		unit->pos = next_pos;

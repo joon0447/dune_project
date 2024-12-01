@@ -87,6 +87,9 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			
 
 			char back = backbuf[i][j];
+			if (back == 0) {
+				printBgc(padd(map_pos, pos), 'P', COLOR_BLACK, COLOR_ORANGE);
+			}
 			// »÷µå¿ú ¹è¼³ ½ºÆÄÀÌ½º 
 			if (back >= 49 && back <= 57) {
 				printBgc(padd(map_pos, pos), back, COLOR_WHITE, COLOR_ORANGE);
@@ -142,6 +145,9 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			}
 			else if (back == 'z') {
 				printBgc(padd(map_pos, pos), ' ', COLOR_WHITE, COLOR_P);
+			}
+			else if (back == 'o') {
+				printBgc(padd(map_pos, pos), 'S', COLOR_WHITE, COLOR_LRED);
 			}
 		}
 	}

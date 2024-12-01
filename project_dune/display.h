@@ -29,6 +29,7 @@ extern bool big_cursor;
 #define COLOR_OK 3
 #define COLOR_PURPLE 5
 #define COLOR_P 13
+#define COLOR_LRED 12
 
 // 지금은 자원, 맵, 커서만 표시
 // 앞으로 화면에 표시할 내용들 여기에 추가하기
