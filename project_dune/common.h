@@ -42,6 +42,7 @@ typedef enum {
 	k_s,
 	k_space,
 	k_h,
+	k_f,
 	k_m,
 	k_esc,
 	k_x,
@@ -133,6 +134,7 @@ UNIT
 id
 0 -> 하베스터
 1 -> 보병
+2 -> 프레맨
 */
 
 #endif

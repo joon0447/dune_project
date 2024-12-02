@@ -37,7 +37,8 @@ bool is_spice_there(int row, int column);
 void work_harvester(void);
 void unit_move(UNIT* unit, int id);
 
-void move_marin();
+void move_marin(void);
+void move_freeman(void);
 void create_harvester(void);
 void calc_count(void);
 void create_harvester_pointer(int row, int column);
@@ -204,8 +205,11 @@ int main(void) {
 					current_select = -3;
 					big_cursor = true;	
 				}
-				else if (current_select = 6) {
-
+				else if (current_select == 6 || current_select == 7) {
+					print_system_message("이동할 장소를 선택해주세요.                         ");
+					if (curr_unit != NULL) {
+						curr_unit->work_type = 1;
+					}
 				}
 				break;
 			case k_d: // 숙소
@@ -223,10 +227,62 @@ int main(void) {
 				}
 				break;
 			case k_m:
-				if (current_select == 6) {
+				if (current_select == 6 || current_select == 3 || current_select == 7) {
 					print_system_message("이동할 장소를 선택해주세요.                         ");
 					if (curr_unit != NULL) {
 						curr_unit->work_type = 0;
+					}
+				}
+				break;
+			case k_f:
+				if (current_select == 5) {
+					if (resource.population_max - resource.population >= 2) {
+						if (resource.spice >= 5) {
+							s_flag = true;
+							for (int i = 0; i < MAP_HEIGHT; i++) {
+								for (int j = 0; j < MAP_WIDTH; j++) {
+									char back = backbuf[i][j];
+									if (back != '#') {
+										map[0][i][j] = 'f';
+										resource.spice -= 5;
+										resource.population += 2;
+
+										UNIT* freeman = (UNIT*)malloc(sizeof(UNIT));
+										if (!freeman) {
+											print_system_message("프레맨 생성에 실패했습니다 : 메모리 부족      ");
+											return;
+										}
+
+										POSITION pos = { i,j };
+										freeman->pos = pos;
+										freeman->start_pos = pos;
+										freeman->move_period = 400;
+										freeman->attack = 15;
+										freeman->attack_period = 200;
+										freeman->max_hp = 25;
+										freeman->hp = 25;
+										freeman->sight = 8;
+										freeman->id = 2;
+										unit_map[pos.row][pos.column] = freeman;
+										print_system_message("프레맨이 생산되었습니다.                   ");
+										s_flag = false;
+										break;
+									}
+								}
+								if (!s_flag) {
+									break;
+								}
+							}
+							if (s_flag == true) {
+								print_system_message("생성할 공간이 부족합니다.                     ");
+							}
+						}
+						else {
+							print_system_message("스파이스가 부족합니다.                              ");
+						}
+					}
+					else {
+						print_system_message("인구수가 부족합니다.                              ");
 					}
 				}
 			case k_s:
@@ -236,9 +292,9 @@ int main(void) {
 					current_select = -7;
 				}
 				else if (current_select == 4) { // 보병 생산
-					s_flag = true;
 					if (resource.population_max - resource.population >= 1) {
 						if (resource.spice >= 5) {
+							s_flag = true;
 							for (int i = 0; i < MAP_HEIGHT; i++) {
 								for (int j = 0; j < MAP_WIDTH; j++) {
 									char back = backbuf[i][j];
@@ -256,12 +312,12 @@ int main(void) {
 										POSITION pos = { i, j };
 										marin->pos = pos;
 										marin->start_pos = pos;
-										marin->move_period = 400;
-										marin->attack = 15;
-										marin->attack_period = 200;
-										marin->max_hp = 25;
-										marin->hp = 25;
-										marin->sight = 8;
+										marin->move_period = 1000;
+										marin->attack = 5;
+										marin->attack_period = 800;
+										marin->max_hp = 15;
+										marin->hp = 15;
+										marin->sight = 1;
 										marin->id = 1;
 										unit_map[pos.row][pos.column] = marin;
 										print_system_message("보병이 생산되었습니다.                   ");
@@ -297,12 +353,13 @@ int main(void) {
 		}
 
 		move_marin();
-
+		move_freeman();
 
 		obj1_move();
 		obj2_move();
 		
 		work_harvester();
+		
 		// 화면 출력
 		display(resource, map, cursor);
 		Sleep(TICK);
@@ -542,14 +599,44 @@ void object_select(void){
 			curr_unit = unit_map[curr.row][curr.column];
 		}
 
+		else if (ch == 'f') {
+			object_info("프레맨");
+			object_cmd("M: Move , P : Patrol");
+			current_select = 7;
+			curr_unit = unit_map[curr.row][curr.column];
+		}
+
 		else {
 			if (current_select != -2 && current_select != -3) {
 				object_info("사막 지형");
 				object_cmd("");
+				// 보병
 				if (current_select == 6) {
+					curr_unit->start_pos = curr_unit->pos;
+					curr_unit->spice_pos = curr;
 					curr_unit->des = curr;
 					curr_unit->work = true;
 					print_system_message("보병이 선택 장소로 이동합니다.                       ");
+				}
+
+				//프레맨
+				else if (current_select == 7) {
+					curr_unit->start_pos = curr_unit->pos;
+					curr_unit->spice_pos = curr;
+					curr_unit->des = curr;
+					curr_unit->work = true;
+					print_system_message("프레맨이 선택 장소로 이동합니다.                       ");
+				}
+
+
+				//하베스터
+				else if (current_select == 3) {
+					POSITION des = cursor.current;
+					UNIT* unit = unit_map[order_unit.row][order_unit.column];
+					unit->des = curr;
+					unit->work = true;
+					unit->work_type = 0;
+					print_system_message("하베스터가 선택 장소로 이동합니다.                       ");
 				}
 				current_select = -1;
 			}
@@ -571,6 +658,7 @@ void object_select(void){
 			unit->des = des;
 			unit->work = true;
 			unit->spice_pos = des;
+			unit->work_type = 1;
 			print_system_message("하베스터가 스파이스 수확을 시작합니다.     ");
 			current_select = -1;
 		}
@@ -981,6 +1069,24 @@ void move_marin() {
 	}
 }
 
+void move_freeman() {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			UNIT* unit = unit_map[i][j];
+			if (unit != NULL) {
+				if (unit->id == 2) {
+					if (unit->work) {
+						if (sys_clock <= unit->next_move_time) {
+							return;
+						}
+						unit_move(unit, 2);
+					}
+				}
+			}
+		}
+	}
+}
+
 void unit_move(UNIT* unit, int id) {
 	POSITION diff = psub(unit->des, unit->pos);
 	DIRECTION dir;
@@ -991,38 +1097,53 @@ void unit_move(UNIT* unit, int id) {
 		POSITION start_pos = unit->start_pos;
 		
 		if (id == 0) { // 하베스터
-			if(des.row == start_pos.row && des.column == start_pos.column) { // 스파이스 먹으러 가기
-				if (backbuf[start_pos.row][start_pos.column] == 'S' || (backbuf[start_pos.row][start_pos.column] >= 49 && backbuf[start_pos.row][start_pos.column] <= 57)) {
-					unit->des = unit->spice_pos;
+			if (unit->work_type != 0) {
+				if (des.row == start_pos.row && des.column == start_pos.column) { // 스파이스 먹으러 가기
+					if (backbuf[start_pos.row][start_pos.column] == 'S' || (backbuf[start_pos.row][start_pos.column] >= 49 && backbuf[start_pos.row][start_pos.column] <= 57)) {
+						unit->des = unit->spice_pos;
+					}
+				}
+				else { // 본진으로 복귀하기
+					if (unit->hold_time == 0) {
+						unit->hold_time = sys_clock;
+						return;
+					}
+
+					if (sys_clock - unit->hold_time < 1000) {
+						return;
+					}
+
+					unit->hold_time = 0;
+					int spice = unit->take_spice;
+					if (spice + resource.spice > resource.spice_max) {
+						resource.spice = resource.spice_max;
+					}
+					else {
+						resource.spice += spice;
+					}
+					unit->des = unit->start_pos;
+					unit->take_spice = 0;
 				}
 			}
-			else { // 본진으로 복귀하기
-				if (unit->hold_time == 0) {
-					unit->hold_time = sys_clock;
-					return;
-				}
-
-				if (sys_clock - unit->hold_time < 1000) {
-					return;
-				}
-
-				unit->hold_time = 0;
-				int spice = unit->take_spice;
-				if (spice + resource.spice > resource.spice_max) {
-					resource.spice = resource.spice_max;
-				}
-				else {
-					resource.spice += spice;
-				}
-				unit->des = unit->start_pos;
-				unit->take_spice = 0;
+			else {
+				unit->work = false;
 			}
 		}
 
 		//보병
 
-		else if (id == 1) {
+		else if (id == 1 || id == 2) {
 
+			if (unit->work_type == 1) {
+				if (des.row == unit->pos.row && des.column == unit->pos.column) {
+					unit->des = unit->start_pos;
+					unit->start_pos = unit->pos;
+				}
+				else {
+					unit->des = unit->spice_pos;
+					start_pos = unit->pos;
+				}
+			}
 		}
 		return;
 	}
@@ -1060,6 +1181,16 @@ void unit_move(UNIT* unit, int id) {
 	else if (id == 1) {
 		map[0][curr_pos.row][curr_pos.column] = 'x';
 		map[0][next_pos.row][next_pos.column] = 'o';
+		unit_map[curr_pos.row][curr_pos.column] = NULL;
+		unit_map[next_pos.row][next_pos.column] = unit;
+		unit->pos = next_pos;
+		unit->next_move_time = sys_clock + unit->move_period;
+	}
+
+	//프레맨
+	else if (id == 2) {
+		map[0][curr_pos.row][curr_pos.column] = 'x';
+		map[0][next_pos.row][next_pos.column] = 'f';
 		unit_map[curr_pos.row][curr_pos.column] = NULL;
 		unit_map[next_pos.row][next_pos.column] = unit;
 		unit->pos = next_pos;
