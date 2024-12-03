@@ -1,4 +1,4 @@
 ﻿  engine.c
-D:\github\dune_project\project_dune\engine.c(193,88): warning C4020: 'object_cmd2': 실제 매개 변수가 너무 많습니다.
-D:\github\dune_project\project_dune\engine.c(634,15): warning C4101: 'des' :참조되지 않은 지역 변수입니다.
+D:\github\dune_project\project_dune\engine.c(200,88): warning C4020: 'object_cmd2': 실제 매개 변수가 너무 많습니다.
+D:\github\dune_project\project_dune\engine.c(675,15): warning C4101: 'des' :참조되지 않은 지역 변수입니다.
   project_dune.vcxproj -> D:\github\dune_project\Debug\project_dune.exe

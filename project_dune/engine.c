@@ -40,6 +40,13 @@ void unit_move(UNIT* unit, int id);
 void move_marin(void);
 void move_freeman(void);
 void create_harvester(void);
+
+void create_fighter(void);
+void create_tank(void);
+
+bool is_empty_squre(int x, int y);
+
+
 void calc_count(void);
 void create_harvester_pointer(int row, int column);
 
@@ -451,6 +458,23 @@ void object_build(int build) {
 					map[0][curr_c.row][curr_c.column] = 'A';
 					resource.spice -= 4;
 					print_system_message("병영 건설을 완료했습니다.                 ");
+					bool pass = false;
+					//AI 투기장 건설
+					for (int i = MAP_HEIGHT; i >= 0; i--) {
+						for (int j = MAP_WIDTH; j >= 0; j--) {
+							if (is_empty_squre(i, j)) {
+								map[0][i][j] = 'e';
+								map[0][i][j+1] = 'e';
+								map[0][i-1][j] = 'E';
+								map[0][i-1][j+1] = 'e';
+								pass = true;
+								break;
+							}
+						}
+						if (pass) {
+							break;
+						}
+					}
 				}
 				else {
 					print_system_message("스파이스가 부족합니다.                ");
@@ -467,6 +491,23 @@ void object_build(int build) {
 					map[0][curr_c.row][curr_c.column] = 'z';
 					resource.spice -= 5;
 					print_system_message("은신처 건설을 완료했습니다.                ");
+					bool pass = false;
+					//AI 공장 건설
+					for (int i = MAP_HEIGHT; i >= 0; i--) {
+						for (int j = MAP_WIDTH; j >= 0; j--) {
+							if (is_empty_squre(i, j)) {
+								map[0][i][j] = 'c';
+								map[0][i][j + 1] = 'c';
+								map[0][i - 1][j] = 'C';
+								map[0][i - 1][j + 1] = 'c';
+								pass = true;
+								break;
+							}
+						}
+						if (pass) {
+							break;
+						}
+					}
 				}
 				else {
 					print_system_message("스파이스가 부족합니다.                ");
@@ -725,6 +766,10 @@ void init(void) {
 			}
 			else if (i == MAP_HEIGHT - 15 && j == MAP_WIDTH - 2) { // AI 하베스터
 				create_harvester_pointer(i, j);
+				UNIT* unit = unit_map[i][j];
+				unit->work_type = 1;
+				unit->work = true;
+				unit->id = 3;
 				map[0][i][j] = 'h';
 			}
 			else if (i == MAP_HEIGHT - 13 && j == MAP_WIDTH - 2) { // AI 스파이스
@@ -1036,12 +1081,12 @@ void work_harvester() {
 		for (int j = 0; j < MAP_WIDTH; j++) {
 			UNIT* unit = unit_map[i][j];
 			if (unit != NULL) {
-				if (unit->id == 0) {
+				if (unit->id == 0 || unit->id == 3) {
 					if (unit->work) {
 						if (sys_clock <= unit->next_move_time) {
 							return;
 						}
-						unit_move(unit, 0);
+						unit_move(unit, unit->id);
 					}
 				}
 			}
@@ -1096,7 +1141,7 @@ void unit_move(UNIT* unit, int id) {
 		POSITION des = unit->des;
 		POSITION start_pos = unit->start_pos;
 		
-		if (id == 0) { // 하베스터
+		if (id == 0 || id == 3) { // 하베스터
 			if (unit->work_type != 0) {
 				if (des.row == start_pos.row && des.column == start_pos.column) { // 스파이스 먹으러 가기
 					if (backbuf[start_pos.row][start_pos.column] == 'S' || (backbuf[start_pos.row][start_pos.column] >= 49 && backbuf[start_pos.row][start_pos.column] <= 57)) {
@@ -1167,7 +1212,7 @@ void unit_move(UNIT* unit, int id) {
 		next_pos = unit->pos;
 	}
 
-	// 하베스터
+	// 플레이어 하베스터
 	if (id == 0) {
 		map[0][curr_pos.row][curr_pos.column] = 'x';
 		map[0][next_pos.row][next_pos.column] = 'H';
@@ -1196,4 +1241,26 @@ void unit_move(UNIT* unit, int id) {
 		unit->pos = next_pos;
 		unit->next_move_time = sys_clock + unit->move_period;
 	}
+
+	//AI 하베스터
+	else if (id == 3) {
+		map[0][curr_pos.row][curr_pos.column] = 'x';
+		map[0][next_pos.row][next_pos.column] = 'h';
+		unit_map[curr_pos.row][curr_pos.column] = NULL;
+		unit_map[next_pos.row][next_pos.column] = unit;
+		unit->pos = next_pos;
+		unit->next_move_time = sys_clock + unit->move_period;
+	}
+}
+
+bool is_empty_squre(int x, int y) {
+	if (x + 1 >= MAP_HEIGHT || y + 1 >= MAP_WIDTH) {
+		return false; // 경계를 벗어남
+	}
+
+	// 2x2 정사각형 검사
+	return (backbuf[x][y] == ' ' || backbuf[x][y] == 'x') &&
+		(backbuf[x][y + 1] == ' ' || backbuf[x][y+1] == 'x') &&
+		(backbuf[x + 1][y] == ' ' || backbuf[x+1][y] == 'x') &&
+		(backbuf[x + 1][y + 1] == ' ' || backbuf[x+1][y+1] == 'x');
 }

@@ -152,6 +152,18 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			else if (back == 'f') {
 				printBgc(padd(map_pos, pos), 'F', COLOR_WHITE, COLOR_LRED);
 			}
+			else if (back == 'E') { // ≈ı±‚¿Â
+				printBgc(padd(map_pos, pos), 'A', COLOR_WHITE, COLOR_RED);
+			}
+			else if (back == 'e') {
+				printBgc(padd(map_pos, pos), ' ', COLOR_WHITE, COLOR_RED);
+			}
+			else if (back == 'C') {
+				printBgc(padd(map_pos, pos), 'C', COLOR_WHITE, COLOR_RED);
+			}
+			else if (back == 'c') {
+				printBgc(padd(map_pos, pos), ' ', COLOR_WHITE, COLOR_RED);
+			}
 		}
 	}
 
