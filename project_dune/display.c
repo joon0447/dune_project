@@ -164,6 +164,13 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			else if (back == 'c') {
 				printBgc(padd(map_pos, pos), ' ', COLOR_WHITE, COLOR_RED);
 			}
+			else if (back == 'v') { // ≈ıªÁ
+				printBgc(padd(map_pos, pos), 'F', COLOR_WHITE, COLOR_RED);
+			}
+			else if (back == 'n') { // ≈ ≈©
+				printBgc(padd(map_pos, pos), 'T', COLOR_WHITE, COLOR_RED);
+			}
+
 		}
 	}
 

@@ -1,4 +1,7 @@
 ﻿  engine.c
-D:\github\dune_project\project_dune\engine.c(200,88): warning C4020: 'object_cmd2': 실제 매개 변수가 너무 많습니다.
-D:\github\dune_project\project_dune\engine.c(675,15): warning C4101: 'des' :참조되지 않은 지역 변수입니다.
+D:\github\dune_project\project_dune\engine.c(206,88): warning C4020: 'object_cmd2': 실제 매개 변수가 너무 많습니다.
+D:\github\dune_project\project_dune\engine.c(725,15): warning C4101: 'des' :참조되지 않은 지역 변수입니다.
+D:\github\dune_project\project_dune\engine.c(1377,7): warning C4033: 'create_fighter'은(는) 값을 반환해야 합니다.
+D:\github\dune_project\project_dune\engine.c(1399): warning C4715: 'create_fighter': 모든 제어 경로에서 값을 반환하지는 않습니다.
+D:\github\dune_project\project_dune\engine.c(1530): warning C4715: 'search_area': 모든 제어 경로에서 값을 반환하지는 않습니다.
   project_dune.vcxproj -> D:\github\dune_project\Debug\project_dune.exe

@@ -39,10 +39,16 @@ void unit_move(UNIT* unit, int id);
 
 void move_marin(void);
 void move_freeman(void);
-void create_harvester(void);
+void move_ai(void);
 
-void create_fighter(void);
-void create_tank(void);
+
+void create_harvester(void);
+void ai_des(UNIT*);
+POSITION search_area(POSITON);
+
+
+bool create_fighter(void);
+bool create_tank(void);
 
 bool is_empty_squre(int x, int y);
 
@@ -272,6 +278,9 @@ int main(void) {
 										freeman->id = 2;
 										unit_map[pos.row][pos.column] = freeman;
 										print_system_message("프레맨이 생산되었습니다.                   ");
+										if (!create_tank()) {
+											create_fighter();
+										}
 										s_flag = false;
 										break;
 									}
@@ -328,6 +337,10 @@ int main(void) {
 										marin->id = 1;
 										unit_map[pos.row][pos.column] = marin;
 										print_system_message("보병이 생산되었습니다.                   ");
+										if (!create_fighter()) {
+											create_tank();
+										}
+										
 										s_flag = false;
 										break;
 									}
@@ -364,6 +377,7 @@ int main(void) {
 
 		obj1_move();
 		obj2_move();
+		move_ai();
 		
 		work_harvester();
 		
@@ -645,6 +659,42 @@ void object_select(void){
 			object_cmd("M: Move , P : Patrol");
 			current_select = 7;
 			curr_unit = unit_map[curr.row][curr.column];
+		}
+
+		else if (ch == 'E' || ch == 'e') {
+			object_info("투기장");
+			current_select = 8;
+		}
+
+		else if (ch == 'C' || ch == 'c') {
+			object_info("공장");
+			current_select = 9;
+		}
+
+		else if (ch == 'v') {
+			UNIT* unit = unit_map[curr.row][curr.column];
+			char buffer[100];
+			sprintf_s(buffer, sizeof(buffer), "투사 : 체력 %d / %d", unit->hp, unit->max_hp);
+			object_info(buffer);
+			object_cmd("");
+		}
+
+		else if (ch == 'n') {
+			UNIT* unit = unit_map[curr.row][curr.column];
+			char buffer[100];
+			sprintf_s(buffer, sizeof(buffer), "중전차 : 체력 %d / %d", unit->hp, unit->max_hp);
+			object_info(buffer);
+			object_cmd("");
+		}
+
+		else if (ch == 'g' || ch == 'G') {
+			object_info("창고");
+			current_select = -1;
+		}
+
+		else if (ch == 'd' || ch == 'D') {
+			object_info("숙소");
+			current_select = -1;
 		}
 
 		else {
@@ -1132,6 +1182,23 @@ void move_freeman() {
 	}
 }
 
+void move_ai() {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			UNIT* unit = unit_map[i][j];
+			if (unit != NULL) {
+				if (unit->id == 4 || unit->id == 5) {
+					if (unit->work) {
+						if (sys_clock <= unit->next_move_time) {
+							continue;
+						}
+						unit_move(unit, unit->id);
+					}
+				}
+			}
+		}
+	}
+}
 void unit_move(UNIT* unit, int id) {
 	POSITION diff = psub(unit->des, unit->pos);
 	DIRECTION dir;
@@ -1251,6 +1318,26 @@ void unit_move(UNIT* unit, int id) {
 		unit->pos = next_pos;
 		unit->next_move_time = sys_clock + unit->move_period;
 	}
+
+	//투사
+	else if (id == 4) {
+		map[0][curr_pos.row][curr_pos.column] = ' ';
+		map[0][next_pos.row][next_pos.column] = 'v';
+		unit_map[curr_pos.row][curr_pos.column] = NULL;
+		unit_map[next_pos.row][next_pos.column] = unit;
+		unit->pos = next_pos;
+		unit->next_move_time = sys_clock + unit->move_period;
+	}
+
+	//탱크
+	else if (id == 5) {
+		map[0][curr_pos.row][curr_pos.column] = ' ';
+		map[0][next_pos.row][next_pos.column] = 'n';
+		unit_map[curr_pos.row][curr_pos.column] = NULL;
+		unit_map[next_pos.row][next_pos.column] = unit;
+		unit->pos = next_pos;
+		unit->next_move_time = sys_clock + unit->move_period;
+	}
 }
 
 bool is_empty_squre(int x, int y) {
@@ -1263,4 +1350,175 @@ bool is_empty_squre(int x, int y) {
 		(backbuf[x][y + 1] == ' ' || backbuf[x][y+1] == 'x') &&
 		(backbuf[x + 1][y] == ' ' || backbuf[x+1][y] == 'x') &&
 		(backbuf[x + 1][y + 1] == ' ' || backbuf[x+1][y+1] == 'x');
+}
+
+bool create_fighter() {
+	bool build = false;
+	for (int i = MAP_HEIGHT; i >= 0; i--) {
+		for (int j = MAP_WIDTH; j >= 0; j--) {
+			if (backbuf[i][j] == 'E' || backbuf[i][j] == 'e') {
+				build = true;
+				break;
+			}
+		}
+		if (build) {
+			break;
+		}
+	}
+
+	if (build) {
+		for (int i = MAP_HEIGHT; i >= 0; i--) {
+			for (int j = MAP_WIDTH; j >= 0; j--) {
+				if (backbuf[i][j] == ' ' || backbuf[i][j] == 'x') {
+					map[0][i][j] = 'v';
+
+					UNIT* fighter = (UNIT*)malloc(sizeof(UNIT));
+					if (!fighter) {
+						return;
+					}
+
+					POSITION pos = { i,j };
+					fighter->pos = pos;
+					fighter->start_pos = pos;
+					fighter->move_period = 1200;
+					fighter->attack = 6;
+					fighter->attack_period = 00;
+					fighter->hp = 10;
+					fighter->max_hp = 10;
+					fighter->sight = 1;
+					fighter->id = 4;
+					ai_des(fighter);
+					unit_map[pos.row][pos.column] = fighter;
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool create_tank() {
+	bool build = false;
+	for (int i = MAP_HEIGHT; i >= 0; i--) {
+		for (int j = MAP_WIDTH; j >= 0; j--) {
+			if (backbuf[i][j] == 'r' || backbuf[i][j] == 'Z') {
+				build = true;
+				break;
+			}
+		}
+		if (build) {
+			break;
+		}
+	}
+
+	if (build) {
+		for (int i = MAP_HEIGHT; i >= 0; i--) {
+			for (int j = MAP_WIDTH; j >= 0; j--) {
+				if (backbuf[i][j] == ' ' || backbuf[i][j] == 'x') {
+					map[0][i][j] = 'n';
+
+					UNIT* tank = (UNIT*)malloc(sizeof(UNIT));
+					if (!tank) {
+						return true;
+					}
+
+					POSITION pos = { i,j };
+					tank->pos = pos;
+					tank->start_pos = pos;
+					tank->move_period = 3000;
+					tank->attack = 40;
+					tank->attack_period = 4000;
+					tank->hp = 60;
+					tank->max_hp = 60;
+					tank->sight = 4;
+					tank->id = 5;
+					ai_des(tank);
+					unit_map[pos.row][pos.column] = tank;
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+void ai_des(UNIT* unit) {
+	bool find_shelter = false;
+	bool find_barrack = false;
+	bool find_garage = false;
+	bool find_domitory = false;
+
+	POSITION shelter, barrack, garage, domitory;
+	POSITION base = { MAP_HEIGHT - 3, 1 };
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			POSITION pos = { i,j };
+			if (backbuf[i][j] == 'r') {
+				find_shelter = true;
+				shelter = pos;
+			}
+
+			else if (backbuf[i][j] == 'a') {
+				find_barrack = true;
+				barrack = pos;
+			}
+
+			else if (backbuf[i][j] == 'g') {
+				find_garage = true;
+				garage = pos;
+			}
+
+			else if (backbuf[i][j] == 'd') {
+				find_domitory = true;
+				domitory = pos;
+			}
+		}
+	}
+
+
+	if (find_shelter) {
+		POSITION des = search_area(shelter);
+		unit->des = des;
+		return;
+	}
+
+	if (find_barrack) {
+		POSITION des = search_area(barrack);
+		unit->des = des;
+		return;
+	}
+
+	if (find_garage) {
+		POSITION des = search_area(garage);
+		unit->des = des;
+		return;
+	}
+
+	if (find_domitory) {
+		POSITION des = search_area(domitory);
+		unit->des = des;
+		return;
+	}
+
+	POSITION des = search_area(base);
+	unit->des = des;
+	return;
+}
+
+POSITION search_area(POSITION pos) {
+	int startX = (pos.column - 1 < 0) ? 0 : pos.column - 1;
+	int endX = (pos.column + 1 >= MAP_HEIGHT) ? MAP_HEIGHT - 1 : pos.column + 1;
+	int startY = (pos.row - 1 < 0) ? 0 : pos.row - 1;
+	int endY = (pos.row + 1 >= MAP_WIDTH) ? MAP_WIDTH - 1 : pos.row + 1;
+
+	for (int i = startX; i <= endX; i++) {
+		for (int j = startY; j <= endY; j++) {
+			if (backbuf[i][j] == ' ' || backbuf[i][j] == 'x') {
+				POSITION pos = { i,j };
+				return pos;
+			}
+		}
+	}
 }
