@@ -116,8 +116,8 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 			else if (back == 'h') {
 				printBgc(padd(map_pos, pos), 'H', COLOR_WHITE, COLOR_RED);
 			}
-			else if (back == 'S') {
-				printBgc(padd(map_pos, pos), spice, COLOR_WHITE, COLOR_ORANGE);
+			else if (back == '5') {
+				printBgc(padd(map_pos, pos), '5', COLOR_WHITE, COLOR_ORANGE);
 			}
 			else if (back == 'x') {
 				printBgc(padd(map_pos, pos), ' ', COLOR_BLACK, COLOR_BLACK);
@@ -165,7 +165,7 @@ void display_map(char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH]) {
 				printBgc(padd(map_pos, pos), ' ', COLOR_WHITE, COLOR_RED);
 			}
 			else if (back == 'v') { // ≈ıªÁ
-				printBgc(padd(map_pos, pos), 'F', COLOR_WHITE, COLOR_RED);
+				printBgc(padd(map_pos, pos), 'G', COLOR_WHITE, COLOR_RED);
 			}
 			else if (back == 'n') { // ≈ ≈©
 				printBgc(padd(map_pos, pos), 'T', COLOR_WHITE, COLOR_RED);
