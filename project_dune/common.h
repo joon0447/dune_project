@@ -114,9 +114,10 @@ typedef struct {
 	POSITION pos; // 현재 위치
 	POSITION des; // 목적지
 	POSITION spice_pos; // 스파이스 위치
-	POSITION attack_target;
+	POSITION attack_target; // 공격 건물
+	POSITION target_unit; // 공격 유닛
 	bool work;
-	int work_type; // 0 : move / 1: patrol / 2: attack
+	int work_type; // 0 : move / 1: patrol / 2: attack / 3: fight
 	int next_move_time;
 	int population;
 	int move_period;

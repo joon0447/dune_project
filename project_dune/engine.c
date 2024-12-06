@@ -41,6 +41,8 @@ void move_marin(void);
 void move_freeman(void);
 void move_ai(void);
 void attack(void);
+void unit_attack(void);
+void unit_fight(void);
 
 void create_harvester(void);
 void ai_des(UNIT*);
@@ -75,7 +77,7 @@ CURSOR cursor = { { 1, 1 }, {1, 1} };
 char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH] = { 0 };
 
 RESOURCE resource = {
-	.spice = 100,
+	.spice = 5,
 	.spice_max = 5,
 	.population = 5,
 	.population_max = 10
@@ -257,7 +259,7 @@ int main(void) {
 							for (int i = 0; i < MAP_HEIGHT; i++) {
 								for (int j = 0; j < MAP_WIDTH; j++) {
 									char back = backbuf[i][j];
-									if (back != '#') {
+									if (back != '#' && back != 'o' && back != 'f') {
 										map[0][i][j] = 'f';
 										resource.spice -= 5;
 										resource.population += 2;
@@ -318,7 +320,7 @@ int main(void) {
 							for (int i = 0; i < MAP_HEIGHT; i++) {
 								for (int j = 0; j < MAP_WIDTH; j++) {
 									char back = backbuf[i][j];
-									if (back != '#') {
+									if (back == ' ' || back == 'x') {
 										map[0][i][j] = 'o';
 										resource.spice -= 5;
 										resource.population += 1;
@@ -386,6 +388,8 @@ int main(void) {
 		move_ai();
 		ai_des2();
 		attack();
+		unit_attack();
+		unit_fight();
 		
 		work_harvester();
 		
@@ -1378,7 +1382,7 @@ void move_marin() {
 				if (unit->id == 1) {
 					if (unit->work) {
 						if (sys_clock <= unit->next_move_time) {
-							return;
+							continue;
 						}
 						unit_move(unit, 1);
 					}
@@ -1397,7 +1401,7 @@ void move_freeman() {
 				if (unit->id == 2) {
 					if (unit->work) {
 						if (sys_clock <= unit->next_move_time) {
-							return;
+							continue;
 						}
 						unit_move(unit, 2);
 					}
@@ -1782,5 +1786,79 @@ POSITION search_area(POSITION pos) {
 			}
 		}
 	}
+}
+
+void unit_attack() {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			UNIT* unit = unit_map[i][j];
+			if (unit != NULL) {
+				int sight = unit->sight;
+				int start_row = unit->pos.row - sight / 2;
+				int start_col = unit->pos.column - sight / 2;
+				int end_row = unit->pos.row + sight / 2 - 1;
+				int end_col = unit->pos.column + sight / 2 - 1;
+
+				if (start_row < 0) start_row = 0;
+				if (start_col < 0) start_col = 0;
+				if (end_row >= MAP_HEIGHT) end_row = MAP_HEIGHT - 1;
+				if (end_col >= MAP_WIDTH) end_col = MAP_WIDTH - 1;
+
+				for (int row = start_row; row <= end_row; row++) {
+					for (int col = start_col; col <= end_col; col++) {
+						UNIT* target = unit_map[row][col];
+						if (unit->id == 1 || unit->id == 2) {
+							if (target != NULL) {
+								if (target->id == 4 || target->id == 5) {
+									unit->work_type = 3;
+									unit->target_unit = target->pos;
+									target->work_type = 3;
+									target->target_unit = unit->pos;
+								}
+							}
+						}
+						else if (unit->id == 5 || unit->id == 4) {
+							if (target != NULL) {
+								if (target->id == 1 || target->id == 2) {
+									unit->work_type = 3;
+									unit->target_unit = target->pos;
+									target->work_type = 3;
+									target->target_unit = unit->pos;
+								}
+							}
+						}
+						
+					}
+				}
+			}
+		}
+	}
+}
+
+void unit_fight() {
+	for (int i = 0; i < MAP_HEIGHT; i++) {
+		for (int j = 0; j < MAP_WIDTH; j++) {
+			UNIT* unit = unit_map[i][j];
+			if (unit != NULL) {
+				if (unit->work_type == 3) {
+					if (sys_clock <= unit->next_attack_time) {
+						continue;
+					}
+
+					POSITION target = unit->target_unit;
+					UNIT* target_unit = unit_map[target.row][target.column];
+					target_unit->hp -= unit->attack;
+					
+					if (target_unit->hp <= 0) {
+						unit->work_type = 0;
+						unit_map[target_unit->pos.row][target_unit->pos.column] = NULL;
+						map[0][target_unit->pos.row][target_unit->pos.column] = ' ';
+					}
+
+				}
+			}
+		}
+	}
+
 }
 
