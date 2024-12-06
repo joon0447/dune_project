@@ -75,7 +75,7 @@ CURSOR cursor = { { 1, 1 }, {1, 1} };
 char map[N_LAYER][MAP_HEIGHT][MAP_WIDTH] = { 0 };
 
 RESOURCE resource = {
-	.spice = 5,
+	.spice = 100,
 	.spice_max = 5,
 	.population = 5,
 	.population_max = 10
@@ -1066,7 +1066,8 @@ void obj1_move(void) {
 
 // 샌드웜1 일반유닛 잡아 먹기
 void obj1_eat(void) {
-	if (map[0][obj.pos.row][obj.pos.column] == 'H' || map[0][obj.pos.row][obj.pos.column] == 'h') { // 하베스터 잡아 먹기
+	char unit = map[0][obj.pos.row][obj.pos.column];
+	if (unit == 'H' || unit == 'h' || unit == 'v' || unit == 'n' || unit == 'f' || unit == 'o') { // 하베스터 잡아 먹기
 		map[0][obj.pos.row][obj.pos.column] = 'x';
 		map[1][obj.pos.row][obj.pos.column] = -1;
 		print_system_message("유닛이 샌드웜에게 당했습니다.                ");
@@ -1160,7 +1161,8 @@ void obj2_move(void) {
 }
 
 void obj2_eat(void) {
-	if (map[0][obj2.pos.row][obj2.pos.column] == 'H' || map[0][obj2.pos.row][obj2.pos.column] == 'h') { // 하베스터 잡아 먹기
+	char unit = map[0][obj2.pos.row][obj2.pos.column];
+	if (unit == 'H' || unit == 'h' || unit == 'v' || unit == 'n' || unit == 'f' || unit == 'o') { // 하베스터 잡아 먹기
 		map[0][obj2.pos.row][obj2.pos.column] = 'x';
 		map[1][obj2.pos.row][obj2.pos.column] = -1;
 		print_system_message("유닛이 샌드웜에게 당했습니다.               ");
